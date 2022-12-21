@@ -31,8 +31,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   wager: number;
   decisionHandlers: { decision: Decision; handler: (any?: any) => void }[];
 
-  constructor(props) {
-    super(props);
+  constructor() {
+    super({});
 
     this.state = {
       dealer: null,
