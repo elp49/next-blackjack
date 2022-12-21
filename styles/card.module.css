@@ -1,0 +1,53 @@
+.card {
+  display: inline-block;
+  position: relative; /* can prolly remove */
+  width: 5em;
+  height: 7em;
+  background-color: #ffffff;
+  box-shadow: 0 0.0625em 0.125em rgba(0, 0, 0, 0.15);
+  border-radius: 0.25em;
+  /* margin-left: 1.25em; */
+}
+.red {
+  color: red;
+}
+.cardBack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: black;
+  font-size: 3em;
+}
+.cardTopLeft {
+  position: absolute;
+  top: 0.5em;
+  left: 0.75em;
+}
+.cardBottomRight {
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.75em;
+  transform: rotate(180deg);
+}
+.cardCornerRank,
+.cardCornerSuit {
+  width: 1em;
+  text-align: center;
+  transform: translate(-50%, 0);
+}
+.cardSuits {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 17.5%;
+  height: 25%;
+  transform: translate(-50%, -50%);
+}
+.cardSuit {
+  font-size: 1em;
+  position: absolute;
+}
+.cardSuit.mirrored {
+  transform: rotate(180deg);
+}

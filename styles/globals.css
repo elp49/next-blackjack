@@ -1,0 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  /* background-color: rgb(255, 246, 235); */
+  color: #000;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1 {
+  font-size: 4rem;
+}
+
+h2 {
+  font-size: 3rem;
+}
+
+h3,
+p {
+  font-size: 2rem;
+}
+
+i {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  -ms-background-size: contain;
+  -o-background-size: contain;
+  background-size: contain;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  background-color: transparent;
+}
+
+.white form {
+  border-bottom-color: #24316f;
+}
+
+.blue form {
+  border-bottom-color: #fff;
+}
+
+.verticalScrollLocked {
+  overflow-y: hidden;
+}
+
+@media only screen and (max-width: 500px) {
+  h1 {
+    font-size: 3rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  h3,
+  p {
+    font-size: 1.5rem;
+  }
+}
+
+@media only screen and (max-height: 500px) {
+  h1 {
+    font-size: 3rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media not all and (pointer: coarse) {
+  i:hover,
+  i:focus {
+    transition-duration: 0.5s;
+    opacity: 1;
+  }
+  a:hover,
+  a:focus {
+    transition-duration: 0.5s;
+    opacity: 1;
+  }
+}
+.outline {
+  border-width: 1px;
+  border-color: #000;
+}
+.container {
+  position: relative;
+  height: 85vh;
+  width: 90vw;
+  margin: auto;
+}
+.whole {
+  height: 100%;
+  width: 100%;
+}
+.column > .half {
+  height: 50%;
+  width: 100%;
+  margin: auto;
+}
+.row > .half {
+  height: 100%;
+  width: 50%;
+  margin: auto;
+}
+.column > .third {
+  height: calc(100% / 3);
+  width: 100%;
+  margin: auto;
+}
+.row > .third {
+  height: 100%;
+  width: calc(100% / 3);
+  margin: auto;
+}
+.quarter {
+  height: 25%;
+  margin: auto;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.someSpace {
+  margin: 8px;
+}
+.moreSpace {
+  margin: 16px;
+}
