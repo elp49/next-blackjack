@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import styles from '../../styles/layout.module.css';
 import { createStyle } from '../../utils/utils';
 import Footer from './Footer';

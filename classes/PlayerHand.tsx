@@ -1,5 +1,5 @@
 import Card from './Card';
-import Hand, { IHand, HandResult, IHandState } from './Hand';
+import Hand, { HandResult, IHand } from './Hand';
 
 export enum Decision {
   PlaceBet = 'PLACE BET',

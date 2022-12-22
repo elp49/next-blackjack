@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../styles/card.module.css';
-import { ACE, NUMBER_CARDS, FACE_CARDS } from '../utils/constants';
+import { ACE, FACE_CARDS, NUMBER_CARDS } from '../utils/constants';
 
 enum Color {
   Red = 'red',
@@ -142,8 +142,6 @@ class Card extends React.Component {
     this.recursiveRender = this.recursiveRender.bind(this);
   }
 
-  // TODO: figure out who flips card
-  // dealerhand responsibility or other?
   flip(): void {
     // console.log('==========flipping card ===');
     this.isFaceUp = !this.isFaceUp;

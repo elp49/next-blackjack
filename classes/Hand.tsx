@@ -1,7 +1,6 @@
-import { ACE, TEN, TWENTY, TWENTY_ONE } from '../utils/constants';
-import styles from '../styles/hand.module.css';
-import Card from './Card';
 import React from 'react';
+import { ACE, TEN, TWENTY, TWENTY_ONE } from '../utils/constants';
+import Card from './Card';
 
 export enum HandResult {
   InProgress = 'In Progress',

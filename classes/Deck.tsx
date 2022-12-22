@@ -1,6 +1,5 @@
-import React from 'react';
-import { DECK_SIZE, NUMBER_CARDS } from '../utils/constants';
-import { getRandomInt, range } from '../utils/utils';
+import { DECK_SIZE } from '../utils/constants';
+import { getRandomInt } from '../utils/utils';
 import Card from './Card';
 
 interface IDeckProps {

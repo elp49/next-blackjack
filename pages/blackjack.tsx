@@ -1,15 +1,12 @@
-import { Component, useEffect, useState } from 'react';
-import { getRandomInt, range } from '../utils/utils';
-import Layout from '../components/Layout/Layout';
-import { Button, iconButtonClasses } from '@mui/material';
-import Script from 'next/script';
+import { Button } from '@mui/material';
 import React from 'react';
 import Deck from '../classes/Deck';
+import Hand, { HandResult } from '../classes/Hand';
 import PlayerHand, { Decision } from '../classes/PlayerHand';
 import Results from '../classes/Results';
-import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
-import Hand, { HandResult } from '../classes/Hand';
+import Layout from '../components/Layout/Layout';
 import styles from '../styles/table.module.css';
+import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
 
 const NUM_DECKS = 2;
 const HIT_SOFT_SEVENTEEN = true;

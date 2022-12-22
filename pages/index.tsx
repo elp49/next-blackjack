@@ -1,6 +1,5 @@
-import Layout from '../components/Layout/Layout';
 import Button from '@mui/material/Button';
-import React from 'react';
+import Layout from '../components/Layout/Layout';
 import styles from '../styles/home.module.css';
 
 function Home(): JSX.Element {
