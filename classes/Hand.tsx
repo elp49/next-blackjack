@@ -64,7 +64,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
   }
 
   public get ValueString(): string {
-    return `(${this.ValueHard}${this.ValueSoft !== this.ValueHard ? `/${this.ValueSoft}` : ''})`;
+    return `(${this.ValueHard}${this.ValueHard !== this.BestValue ? `/${this.ValueSoft}` : ''})`;
   }
 
   constructor(props) {

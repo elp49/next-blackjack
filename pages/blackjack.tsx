@@ -15,10 +15,6 @@ const NUM_DECKS = 2;
 const HIT_SOFT_SEVENTEEN = true;
 
 export interface IBlackjackState {
-  // results: Results;
-  // deck: Deck;
-  // activeHands: PlayerHand[];
-  // currentWager: number;
   dealer: Hand;
   currentHand: PlayerHand;
   validDecisions: Decision[];
@@ -31,8 +27,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   wager: number;
   decisionHandlers: { decision: Decision; handler: (any?: any) => void }[];
 
-  constructor() {
-    super({});
+  constructor(props) {
+    super(props);
 
     this.state = {
       dealer: null,
@@ -128,15 +124,12 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
         const cardShowing = this.state.dealer.cards[0];
         console.log('checking for insurance');
         if (cardShowing.IsAce || cardShowing.Value === 10) {
-          // activeHands = [...this.state.activeHands];
           currentHand = this.state.currentHand.clone();
-
           // Offer insurance
           if (cardShowing.IsAce) {
             console.log('Insurance? ');
             // if (IsYes())
             {
-              // activeHands.forEach((h) => h.AcceptInsurance());
               currentHand.acceptInsurance();
               console.log('Accepted');
             }
@@ -146,25 +139,37 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
           // else no insurance but dealer may still have blackjack
 
+          // useless cause state updating timeing and timeout not work together
           // build anticipation
           for (let i = 0; i < 3; i++) {
             setTimeout(() => {
               console.log('.');
             }, 1000);
           }
+
+          console.log('checking if dealer has blackjack');
           if (this.state.dealer.IsBlackjack) {
-            console.log('dealer DOES have blackjack');
+            console.log('dealer has blackjack');
+            const dealer = this.state.dealer.clone();
+            dealer.cards[1].flip();
+            dealer.stand();
+            currentHand.stand();
+
+            this.activeHands = [currentHand];
+            this.setState({ dealer, currentHand });
           } else {
             console.log(
               `dealer DOES NOT have blackjack - ${this.state.dealer.cards[0].Rank} ${this.state.dealer.cards[1].Rank}`
             );
+
+            if (currentHand.didInsure) {
+              this.activeHands = [currentHand];
+              this.setState({
+                currentHand,
+              });
+            }
           }
           console.log();
-
-          this.activeHands = [currentHand];
-          this.setState({
-            currentHand,
-          });
         } else {
           console.log('no insurance to offer');
         }
@@ -282,6 +287,9 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IBlackjackState>, snapshot?: any): void {
     console.log();
+    console.log();
+    console.log();
+    console.log();
     console.log(
       '|================================================ BEGIN componentDidUpdate BEGIN ================================================|'
     );
@@ -329,6 +337,13 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
         (!prevState.currentHand.didStand && this.state.currentHand.didStand) */
 
     if (this.state.currentHand) {
+      // DEBUG: display all active hands
+      if (this.activeHands.length > 0) {
+        this.activeHands.forEach((x, i) =>
+          console.log(`\tHand ${i}:\t${x} ${x.IsBlackjack ? 'BLACKJACK' : x.ValueString}`)
+        );
+      }
+
       if (this.state.dealer) {
         if (this.state.currentHand.IsBust) console.log(' == BUST == ');
         if (this.state.currentHand.didStand) console.log(' == STAND == ');
@@ -376,24 +391,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             } else {
               console.log('nope');
             }
-
-            // Check if dealer has blackjack
-            console.log('checking if dealer has blackjack');
-            if (this.state.dealer.IsBlackjack) {
-              // || this.state.currentHand.IsBlackjack) {
-              console.log('dealer has blackjack');
-              const dealer = this.state.dealer.clone();
-              dealer.cards[1].flip();
-              dealer.stand();
-              this.activeHands.forEach((x) => x.stand());
-
-              const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
-              const currentHand = this.activeHands[iCurrentHand];
-
-              this.setState({ dealer, currentHand });
-            } else {
-              console.log('nope');
-            }
           }
 
           // New current hand exists
@@ -431,11 +428,13 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             console.log(`player value best ${this.state.currentHand.BestValue}`);
             console.log(`active hand value best ${this.activeHands[0].BestValue}`);
             let dealerWillHit =
-              (dealer.ValueHard < SEVENTEEN && this.activeHands.some((x) => !x.IsBust)) ||
-              (dealer.HasAce &&
-                dealer.ValueSoft == SEVENTEEN &&
-                HIT_SOFT_SEVENTEEN &&
-                this.activeHands.some((x) => !x.IsBust));
+              this.activeHands.some((x) => !x.IsBust) && // exists hands that didnt bust
+              (dealer.BestValue < SEVENTEEN || // and dealer under 17 and players exist with 17 or more
+                (dealer.HasAce &&
+                  dealer.ValueSoft == SEVENTEEN &&
+                  HIT_SOFT_SEVENTEEN &&
+                  this.activeHands.some((x) => x.BestValue >= SEVENTEEN)));
+            this.activeHands.some((x) => !x.IsBust);
             if (dealerWillHit) {
               const card = this.deck.draw();
               console.log(`Dealer dealt card ${card.toString()}`);
