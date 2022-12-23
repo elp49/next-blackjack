@@ -63,7 +63,11 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
   }
 
   public get ValueString(): string {
-    return this.ValueHard === this.BestValue ? this.ValueHard.toString() : `(${this.ValueHard}/${this.ValueSoft})`;
+    return this.ValueHard === this.BestValue
+      ? this.ValueHard.toString()
+      : this.IsBlackjack
+      ? TWENTY_ONE.toString()
+      : `(${this.ValueHard}/${this.ValueSoft})`;
   }
 
   constructor(props) {
@@ -115,7 +119,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     } catch (error) {}
 
     return (
-      <div className="column" style={{ position: 'relative' }}>
+      <div className="column">
         {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
           <p>
             {/* this logic should probably be in the BestValue property */}

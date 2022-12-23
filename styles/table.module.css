@@ -17,3 +17,9 @@
   text-shadow: -1px 1px 2px #000, 1px 1px 2px #000, 1px -1px 2px #000, -1px -1px 2px #000;
   /* text-shadow: -1px 1px 2px #000; */
 }
+.panel {
+  padding: 0.5em 0 0.5em 0;
+  color: #eee;
+  background-image: linear-gradient(to bottom, #444, #000);
+  border-radius: 4px;
+}
