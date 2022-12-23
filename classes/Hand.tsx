@@ -63,7 +63,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
   }
 
   public get ValueString(): string {
-    return `(${this.ValueHard}${this.ValueHard !== this.BestValue ? `/${this.ValueSoft}` : ''})`;
+    return this.ValueHard === this.BestValue ? this.ValueHard.toString() : `(${this.ValueHard}/${this.ValueSoft})`;
   }
 
   constructor(props) {
@@ -105,6 +105,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
   render(): JSX.Element {
     const children = [...this.cards];
     const parent = children && children.length > 0 ? children.shift() : null;
+
     try {
       /* console.log(`rending ${this.isDealer ? ' // DEALER \\\\ ' : 'player'} hand`);
       console.log(`this.cards.length: ${this.cards.length}`);
@@ -112,6 +113,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
       console.log(`parent: ${parent.Rank}`);
       children.forEach((x) => console.log(`child: ${x.Rank}`)); */
     } catch (error) {}
+
     return (
       <div className="column">
         {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
@@ -122,7 +124,29 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
             {this.didStand ? this.BestValue : this.ValueSoft <= TWENTY ? this.ValueString : this.ValueHard}
           </p>
         )}
-        <div className="row">{parent && parent.recursiveRender(children, true)}</div>
+        {/* <div
+          style={{
+            position: 'relative',
+            width: `calc(${children.length} * 1.3em + 5em)`,
+            height: `7em`,
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          > */}
+        <div
+          style={{
+            width: `calc(${children.length} * 1.3em + 5em)`,
+          }}
+        >
+          {parent && parent.recursiveRender(children, true)}
+        </div>
+        {/* </div> */}
       </div>
     );
   }

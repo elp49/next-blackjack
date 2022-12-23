@@ -18,7 +18,7 @@ body {
   scroll-behavior: smooth;
 }
 
-h1 {
+/* h1 {
   font-size: 4rem;
 }
 
@@ -29,7 +29,7 @@ h2 {
 h3,
 p {
   font-size: 2rem;
-}
+} */
 
 i {
   display: inline-block;
@@ -64,7 +64,7 @@ button {
   overflow-y: hidden;
 }
 
-@media only screen and (max-width: 500px) {
+/* @media only screen and (max-width: 500px) {
   h1 {
     font-size: 3rem;
   }
@@ -87,7 +87,7 @@ button {
   h3 {
     font-size: 1.5rem;
   }
-}
+} */
 
 @media not all and (pointer: coarse) {
   i:hover,
@@ -102,13 +102,12 @@ button {
   }
 }
 .outline {
-  border-width: 1px;
-  border-color: #000;
+  /* border: 0.1px solid #000; */
 }
 .container {
   position: relative;
-  height: 85vh;
-  width: 90vw;
+  height: 99vh;
+  min-width: 99vw;
   margin: auto;
 }
 .whole {
@@ -135,8 +134,14 @@ button {
   width: calc(100% / 3);
   margin: auto;
 }
-.quarter {
+.column > .quarter {
   height: 25%;
+  width: 100%;
+  margin: auto;
+}
+.row > .quarter {
+  height: 100%;
+  width: 25%;
   margin: auto;
 }
 .row {
@@ -151,9 +156,15 @@ button {
   align-items: center;
   justify-content: center;
 }
+.wrap {
+  flex-wrap: wrap;
+}
+.flexBasisThird {
+  flex-basis: calc(100% / 3);
+}
 .someSpace {
-  margin: 8px;
+  margin: 1em;
 }
 .moreSpace {
-  margin: 16px;
+  margin: 2em;
 }

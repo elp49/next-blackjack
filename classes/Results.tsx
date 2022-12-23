@@ -1,12 +1,16 @@
-import { divide, msToTime } from '../utils/utils';
+import { atoi, divide, msToTime } from '../utils/utils';
 import { HandResult } from './Hand';
 import PlayerHand from './PlayerHand';
+import { getCookie, setCookie } from 'cookies-next';
+
+const COOKIE_NET_WINNINGS = 'netWinnings';
 
 class Results {
   msStartTime: number;
   currentWinStreak: number;
   longestWinStreak: number;
   hands: PlayerHand[];
+  initialNetWinnings: number;
 
   public get Hands(): PlayerHand[] {
     return this.hands;
@@ -48,7 +52,7 @@ class Results {
     return this.hands.map((x) => x.wager).reduce((x, y) => x + y, 0);
   }
   public get TotalNetWinnings(): number {
-    return this.hands.map((x) => x.NetPayout).reduce((x, y) => x + y, 0);
+    return this.initialNetWinnings + this.hands.map((x) => x.NetPayout).reduce((x, y) => x + y, 0);
   }
   public get TotalWinnings(): number {
     return this.WinningHands.map((x) => x.Payout).reduce((x, y) => x + y, 0);
@@ -69,6 +73,11 @@ class Results {
     this.currentWinStreak = 0;
     this.longestWinStreak = 0;
     this.hands = [];
+
+    // Get a cookie
+    const net = getCookie(COOKIE_NET_WINNINGS);
+    if (net) this.initialNetWinnings = atoi(net.toString());
+    else this.initialNetWinnings = 0;
   }
 
   public RecordHand(hand: PlayerHand): void {
@@ -86,6 +95,9 @@ class Results {
     else if (hand.IsLoss) this.currentWinStreak = 0;
 
     // else push does not affect streak
+
+    // Store new winnings
+    setCookie(COOKIE_NET_WINNINGS, this.TotalNetWinnings);
   }
 
   public Display(): void {

@@ -1,4 +1,6 @@
 import { Button } from '@mui/material';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import React from 'react';
 import Deck from '../classes/Deck';
 import Hand, { HandResult } from '../classes/Hand';
@@ -8,20 +10,21 @@ import Layout from '../components/Layout/Layout';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
 
-const NUM_DECKS = 2;
+const NUM_DECKS = 6;
 const HIT_SOFT_SEVENTEEN = true;
 
 export interface IBlackjackState {
   dealer: Hand;
   currentHand: PlayerHand;
   validDecisions: Decision[];
+  wager: number;
+  currentlyOfferingInsurance: boolean;
 }
 
 class Blackjack extends React.Component<{}, IBlackjackState> {
   results: Results;
   deck: Deck;
   activeHands: PlayerHand[];
-  wager: number;
   decisionHandlers: { decision: Decision; handler: (any?: any) => void }[];
 
   constructor(props) {
@@ -31,16 +34,19 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       dealer: null,
       currentHand: null,
       validDecisions: [Decision.PlaceBet],
+      wager: 0,
+      currentlyOfferingInsurance: false,
     };
 
     this.results = new Results();
     this.deck = null;
     this.activeHands = [];
-    this.wager = 1000;
 
+    this.addChip = this.addChip.bind(this);
     this.placeBet = this.placeBet.bind(this);
     this.rebetAndDeal = this.rebetAndDeal.bind(this);
     this.deal = this.deal.bind(this);
+    this.insure = this.insure.bind(this);
     this.hit = this.hit.bind(this);
     this.stand = this.stand.bind(this);
     this.doubleDown = this.doubleDown.bind(this);
@@ -59,11 +65,17 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     ];
   }
 
+  addChip(chip: number) {
+    console.log(`addChip(${chip})`);
+    console.log(`this.state.wager: ${this.state.wager}`);
+    this.setState({ wager: this.state.wager + chip }, () => console.log(`new wager: ${this.state.wager}`));
+  }
+
   placeBet(callback?: () => void) {
     console.log();
     console.log('placeBet');
 
-    const currentHand = new PlayerHand({ wager: this.wager });
+    const currentHand = new PlayerHand({ wager: this.state.wager });
     this.activeHands = [currentHand];
     this.setState(
       {
@@ -86,10 +98,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     // Get new deck
     if (!this.deck || this.deck.RemainingCount < DECK_SIZE) {
       this.deck = new Deck(NUM_DECKS);
-    }
 
-    // Burn first card in deck
-    if (this.deck.RemainingCount === DECK_SIZE * NUM_DECKS) {
+      // Burn first card in deck
       console.log('Burning card');
       this.deck.draw(false);
     }
@@ -110,68 +120,60 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     console.log(`Hand:\t${currentHand.toString()}`);
     console.log();
 
+    const currentlyOfferingInsurance = dealer.cards[0].IsAce;
     this.activeHands = [currentHand];
     this.setState(
       {
         dealer,
         currentHand,
+        currentlyOfferingInsurance,
       },
-      () => {
-        // Check for potential dealer blackjack
-        const cardShowing = this.state.dealer.cards[0];
-        console.log('checking for insurance');
-        if (cardShowing.IsAce || cardShowing.Value === 10) {
-          currentHand = this.state.currentHand.clone();
-          // Offer insurance
-          if (cardShowing.IsAce) {
-            console.log('Insurance? ');
-            // if (IsYes())
-            {
-              currentHand.acceptInsurance();
-              console.log('Accepted');
-            }
-
-            // else console.log("Declined");
-          }
-
-          // else no insurance but dealer may still have blackjack
-
-          // useless cause state updating timeing and timeout not work together
-          // build anticipation
-          for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-              console.log('.');
-            }, 1000);
-          }
-
-          console.log('checking if dealer has blackjack');
-          if (this.state.dealer.IsBlackjack) {
-            console.log('dealer has blackjack');
-            const dealer = this.state.dealer.clone();
-            dealer.cards[1].flip();
-            dealer.stand();
-            currentHand.stand();
-
-            this.activeHands = [currentHand];
-            this.setState({ dealer, currentHand });
-          } else {
-            console.log(
-              `dealer DOES NOT have blackjack - ${this.state.dealer.cards[0].Rank} ${this.state.dealer.cards[1].Rank}`
-            );
-
-            if (currentHand.didInsure) {
-              this.activeHands = [currentHand];
-              this.setState({
-                currentHand,
-              });
-            }
-          }
-          console.log();
-        } else {
-          console.log('no insurance to offer');
-        }
-      }
+      () => {}
     );
+  }
+
+  insure(accepted: boolean) {
+    console.log('offering insurance');
+
+    const currentHand = this.state.currentHand.clone();
+    if (accepted) {
+      console.log('Accepted');
+      currentHand.acceptInsurance();
+    } else console.log('Declined');
+
+    // useless cause state updating timeing and timeout not work together
+    // build anticipation
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        console.log('.');
+      }, 1000);
+    }
+
+    console.log('checking if dealer has blackjack');
+    if (this.state.dealer.IsBlackjack) {
+      console.log('dealer has blackjack');
+      const dealer = this.state.dealer.clone();
+      dealer.cards[1].flip();
+      dealer.stand();
+      currentHand.stand();
+
+      this.activeHands = [currentHand];
+      this.setState({ dealer, currentHand });
+    } else {
+      console.log(
+        `dealer DOES NOT have blackjack - ${this.state.dealer.cards[0].Rank} ${this.state.dealer.cards[1].Rank}`
+      );
+
+      if (currentHand.didInsure) {
+        this.activeHands = [currentHand];
+        this.setState({
+          currentHand,
+        });
+      }
+    }
+
+    console.log();
+    this.setState({ currentlyOfferingInsurance: false });
   }
 
   hit() {
@@ -283,14 +285,14 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   };
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IBlackjackState>, snapshot?: any): void {
-    console.log();
-    console.log();
-    console.log();
-    console.log();
+    // console.log();
+    // console.log();
+    // console.log();
+    // console.log();
     console.log(
       '|================================================ BEGIN componentDidUpdate BEGIN ================================================|'
     );
-    console.log();
+    // console.log();
     try {
       /* console.log(`prevState: ${prevState.currentHand === null ? 'null' : prevState.currentHand.toString()}`);
       console.log(`thisState: ${this.state.currentHand.toString()}`); */
@@ -508,7 +510,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
         });
       }
     }
-    console.log();
+    // console.log();
     console.log(
       '|================================================ END componentDidUpdate END ================================================|'
     );
@@ -518,66 +520,220 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   render() {
     return (
       <Layout>
-        <div className={`container outline ${styles.table}`}>
+        <div className={`column container outline ${styles.table}`}>
           <div id="dealer" className="quarter column outline">
             {this.state.dealer && this.state.dealer.render()}
             {/* {this.state.dealer && this.state.dealer.WasDealtCards && this.state.dealer.cards.map((c) => c.render())} */}
           </div>
-          <div className="quarter row outline">
-            {this.activeHands
-              .filter((x) => x !== this.state.currentHand)
-              .map((x, i) => (
-                <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                  <p>Hand {this.activeHands.indexOf(x) + 1}</p>
-                  <h3>{x.result}</h3>
-                  {x.render()}
+
+          <div
+            id="controls"
+            className="column outline"
+            style={{
+              height: '75%',
+              width: '100%',
+            }}
+          >
+            {this.state.currentHand ? (
+              <>
+                <div className="half row wrap outline" style={{ justifyContent: 'space-around' }}>
+                  {this.activeHands
+                    .filter((x) => x !== this.state.currentHand)
+                    .map((x, i) => (
+                      <div
+                        key={`activeHand-${i}`}
+                        className="column"
+                        style={{ fontSize: '1em', margin: '0 1em 0 1em' }}
+                      >
+                        <p>Hand {this.activeHands.indexOf(x) + 1}</p>
+                        <h3>{x.result}</h3>
+                        {x.render()}
+                      </div>
+                    ))}
                 </div>
-              ))}
-          </div>
+                <div className="half row outline">
+                  {this.state.currentlyOfferingInsurance && (
+                    <>
+                      <Button
+                        onClick={() => this.insure(true)}
+                        style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}
+                      >
+                        <CheckBoxIcon color="success" style={{ fontSize: '3rem' }} />
+                      </Button>
+                      <div
+                        className="row"
+                        style={{
+                          backgroundColor: '#333',
+                          boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
+                          // opacity: 0.8,
+                          color: 'white',
+                          fontWeight: '800',
+                          height: '3em',
+                          width: '10em',
+                          margin: '2em',
+                          border: '1px solid #ddd',
+                          borderRadius: '.5em',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <span>INSURANCE?</span>
+                      </div>
+                      <Button
+                        onClick={() => this.insure(false)}
+                        style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}
+                      >
+                        <DisabledByDefaultIcon color="error" style={{ fontSize: '3rem' }} />
+                      </Button>
+                    </>
+                  )}
+                </div>
 
-          <div id="player" className="quarter row outline">
-            <div className="third column outline">free space</div>
-            <div id="handStatus" className="third column outline">
-              {this.state.currentHand && this.state.currentHand.WasDealtCards && (
-                <>
-                  <p>Hand {this.activeHands.indexOf(this.state.currentHand) + 1}</p>
-                  <h3>{this.state.currentHand.result}</h3>
-                  {this.state.currentHand.render()}
-                </>
-              )}
-            </div>
-            <div className="third column outline">
-              <div className="half row">Winnings</div>
-              <div className="half row">${this.results.TotalNetWinnings}</div>
-            </div>
-          </div>
-
-          <div id="controls" className="quarter column outline">
-            <div id="choices" className="half row outline">
-              {this.state.validDecisions.map((valid, i) => (
-                <div key={`choice-${i}`} className="someSpace">
+                <div id="player" className="quarter row outline">
+                  <div className="third column outline">free space</div>
+                  <div id="handStatus" className="third column outline">
+                    {this.state.currentHand && this.state.currentHand.WasDealtCards && (
+                      <>
+                        <p>Hand {this.activeHands.indexOf(this.state.currentHand) + 1}</p>
+                        <h3>{this.state.currentHand.result}</h3>
+                        {this.state.currentHand.render()}
+                        <div
+                          className="row"
+                          style={{
+                            backgroundColor: '#333',
+                            boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
+                            // opacity: 0.8,
+                            color: 'white',
+                            height: '2em',
+                            width: '6em',
+                            border: '1px solid #ddd',
+                            borderRadius: '.5em',
+                            textAlign: 'center',
+                          }}
+                        >
+                          <span>${this.state.currentHand.wager}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="third column outline">
+                    <div className="half row">Winnings</div>
+                    <div className="half row">${this.results.TotalNetWinnings}</div>
+                  </div>
+                </div>
+                <div id="bottomPane" className="quarter column outline">
+                  <div id="choices" className="half row outline">
+                    {this.state.currentHand.result === HandResult.InProgress
+                      ? [
+                          { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
+                          { text: 'Split', handler: this.split, decision: Decision.Split },
+                          { text: 'Stand', handler: this.stand, decision: Decision.Stand },
+                          { text: 'Hit', handler: this.hit, decision: Decision.Hit },
+                        ].map(({ text, handler, decision }) => (
+                          <Button
+                            key={text}
+                            onClick={handler}
+                            disabled={
+                              this.state.currentlyOfferingInsurance || !this.state.currentHand.isDecisionValid(decision)
+                            }
+                            variant="contained"
+                            className="someSpace"
+                            style={{
+                              height: '5em',
+                              minWidth: '1em',
+                              width: '5em',
+                              fontFamily: 'serif',
+                              backgroundColor: 'maroon',
+                            }}
+                          >
+                            {text}
+                          </Button>
+                        ))
+                      : [
+                          {
+                            text: 'Change Bet',
+                            handler: () => this.setState({ dealer: null, currentHand: null, wager: 0 }),
+                          },
+                          { text: 'Rebet & Deal', handler: this.rebetAndDeal },
+                        ].map(({ text, handler }) => (
+                          <Button
+                            key={text}
+                            onClick={handler}
+                            variant="contained"
+                            className="someSpace"
+                            style={{
+                              height: '4em',
+                              minWidth: '1em',
+                              width: '12em',
+                              fontFamily: 'serif',
+                              backgroundColor: 'maroon',
+                            }}
+                          >
+                            {text}
+                          </Button>
+                        ))}
+                    {/* {this.state.validDecisions.map((valid, i) => (
+                      <div key={`choice-${i}`} className="someSpace">
+                        <Button
+                          onClick={this.decisionHandlers.find(({ decision }) => decision === valid).handler}
+                          variant="contained"
+                          size="large"
+                        >
+                          {valid}
+                        </Button>
+                      </div>
+                    ))} */}
+                  </div>
+                  <div className="half row outline">
+                    <Button onClick={this.showResults} variant="contained" size="small" className="someSpace">
+                      Results
+                    </Button>
+                    <Button onClick={this.redeal} variant="contained" size="small" className="someSpace">
+                      Redeal
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="half row outline">{this.state.wager > 0 && <h3>{this.state.wager}</h3>}</div>
+                <div id="chips" className="half row wrap outline" style={{ padding: '0 4em 0 4em' }}>
+                  {[
+                    { value: 1, color: 'white' },
+                    { value: 5, color: 'red' },
+                    { value: 25, color: 'green' },
+                    { value: 100, color: 'black' },
+                    { value: 500, color: 'purple' },
+                    { value: 1000, color: 'yellow' },
+                  ].map(({ value, color }) => (
+                    <Button
+                      key={`chip${value}`}
+                      onClick={() => this.addChip(value)}
+                      variant="contained"
+                      className={styles.chip}
+                      style={{
+                        // flexBasis: '25%',
+                        backgroundImage: `url(/images/chip-${color}.png)`,
+                        minWidth: '1em',
+                        backgroundColor: color,
+                      }}
+                    >
+                      <span>{value % 1000 === 0 ? `${value / 1000}K` : value}</span>
+                    </Button>
+                  ))}
+                  <Button onClick={() => this.setState({ wager: 0 })} variant="contained" style={{ margin: '1em' }}>
+                    Clear
+                  </Button>
                   <Button
-                    onClick={this.decisionHandlers.find(({ decision }) => decision === valid).handler}
+                    onClick={this.rebetAndDeal}
+                    disabled={this.state.wager === 0}
                     variant="contained"
-                    size="large"
+                    style={{ margin: '1em' }}
                   >
-                    {valid}
+                    Deal
                   </Button>
                 </div>
-              ))}
-            </div>
-            <div id="bottomPane" className="half row outline">
-              <div className="someSpace">
-                <Button onClick={this.showResults} variant="contained" size="small">
-                  Results
-                </Button>
-              </div>
-              <div className="someSpace">
-                <Button onClick={this.redeal} variant="contained" size="small">
-                  Redeal
-                </Button>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </Layout>

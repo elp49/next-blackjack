@@ -184,7 +184,7 @@ class Card extends React.Component {
       <div
         key={key}
         className={styles.card}
-        style={{ color: this.Color, marginLeft: `${!isInitialRecursion && '1.25em'}` }}
+        style={{ color: this.Color, marginLeft: `${!isInitialRecursion && '1.3em'}` }}
       >
         {this.isFaceUp ? (
           <>

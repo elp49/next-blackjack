@@ -184,7 +184,7 @@ class PlayerHand extends Hand {
         break;
 
       case Decision.RebetAndDeal:
-        isValid = this.result != HandResult.InProgress;
+        isValid = this.result !== HandResult.InProgress;
         break;
 
       case Decision.Hit:
@@ -192,7 +192,7 @@ class PlayerHand extends Hand {
         break;
 
       case Decision.Stand:
-        isValid = !this.didStand && this.WasDealtCards && this.result == HandResult.InProgress;
+        isValid = !this.didStand && this.WasDealtCards && this.result === HandResult.InProgress;
         break;
 
       case Decision.DoubleDown:

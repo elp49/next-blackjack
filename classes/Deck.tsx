@@ -16,6 +16,7 @@ class Deck {
 
   constructor(nDecks: number) {
     console.log(' ==== NEW DECK ====');
+    // this.cards = this.allTens(nDecks);
     this.cards = this.createDefaultDeck(nDecks);
     this.shuffle();
 
@@ -35,6 +36,20 @@ class Deck {
     /* deck.forEach((c) => {
       console.log(`Deck ${c.deckIndex}: ${c.Rank} of ${c.Suit}`);
     }); */
+
+    return deck;
+  }
+
+  // for testing split hand ui
+  public allTens(nDecks: number): Card[] {
+    console.log(`Creating ${nDecks} decks...`);
+    const deck: Card[] = [];
+    const isFaceUp = false;
+    for (let deckIndex = 0; deckIndex < nDecks; deckIndex++)
+      for (let index = 0; index < DECK_SIZE; index++) {
+        const card = new Card({ index, deckIndex, isFaceUp });
+        if (card.Value === 10) deck.push(card);
+      }
 
     return deck;
   }

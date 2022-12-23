@@ -25,9 +25,10 @@ const Layout = ({ children }: LayoutProps) => {
         <title>{TITLE}</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <Header />
-      <div className={styles.container}>{children}</div>
-      <Footer />
+      {/* <Header /> */}
+      {children}
+      {/* <div className={styles.container}>{children}</div> */}
+      {/* <Footer /> */}
     </div>
   );
 };
