@@ -156,16 +156,26 @@ button {
   width: 25%;
   margin: auto;
 }
-/* .column > .fourth {
-  height: 40%;
+.column > .thirty {
+  height: 30%;
   width: 100%;
   margin: auto;
 }
-.row > .fourth {
+.row > .thirty {
   height: 100%;
-  width: 40%;
+  width: 30%;
   margin: auto;
-} */
+}
+.column > .twenty {
+  height: 20%;
+  width: 100%;
+  margin: auto;
+}
+.row > .twenty {
+  height: 100%;
+  width: 20%;
+  margin: auto;
+}
 .column > .tenth {
   height: 10%;
   width: 100%;

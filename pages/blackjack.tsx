@@ -535,13 +535,13 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     </>
                   )}
                 </div>
-                <div className="third column outline">
+                <div className="thirty column outline">
                   <div className="half row">Winnings</div>
                   <div className="half row">${this.results.TotalNetWinnings}</div>
                 </div>
               </div>
-              <div id="bottomPane" className="column outline">
-                <div id="choices" className="row outline">
+              <div id="bottomPane" className="twenty column outline">
+                <div id="choices" className="half row outline" style={{ justifyContent: 'space-evenly' }}>
                   {this.state.currentHand.result === HandResult.InProgress
                     ? [
                         { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
@@ -549,24 +549,26 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                         { text: 'Stand', handler: this.stand, decision: Decision.Stand },
                         { text: 'Hit', handler: this.hit, decision: Decision.Hit },
                       ].map(({ text, handler, decision }) => (
-                        <Button
+                        <button
                           key={text}
                           onClick={handler}
                           disabled={
                             this.state.currentlyOfferingInsurance || !this.state.currentHand.isDecisionValid(decision)
                           }
-                          variant="contained"
-                          className="someSpace"
                           style={{
+                            fontSize: '1rem',
                             height: '5em',
-                            minWidth: '1em',
                             width: '5em',
+                            minWidth: '1em',
                             fontFamily: 'serif',
                             backgroundColor: 'maroon',
+                            color: 'white',
+                            borderRadius: '1em',
+                            boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
                           }}
                         >
-                          {text}
-                        </Button>
+                          {text.toUpperCase()}
+                        </button>
                       ))
                     : [
                         {
@@ -603,7 +605,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       </div>
                     ))} */}
                 </div>
-                <div className="row outline">
+                <div className="half row outline">
                   <Button onClick={this.showResults} variant="contained" size="small" className="someSpace">
                     Results
                   </Button>
