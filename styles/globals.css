@@ -156,6 +156,16 @@ button {
   width: 25%;
   margin: auto;
 }
+.column > .forty {
+  height: 40%;
+  width: 100%;
+  margin: auto;
+}
+.row > .forty {
+  height: 100%;
+  width: 40%;
+  margin: auto;
+}
 .column > .thirty {
   height: 30%;
   width: 100%;

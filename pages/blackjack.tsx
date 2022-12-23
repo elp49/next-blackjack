@@ -601,7 +601,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                 )}
               </div>
 
-              <div id="player" className="third row outline">
+              <div id="player" className="forty row outline">
                 <div className="third column outline" style={{ padding: '1em' }}>
                   <div
                     className="thirty column"
@@ -612,13 +612,14 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       borderRadius: '0.5em',
                       color: 'white',
                       textAlign: 'center',
+                      padding: '0.5em',
                     }}
                   >
                     <span>Total Net Winnings</span>
                     <span>${this.results.TotalNetWinnings}</span>
                   </div>
                 </div>
-                <div id="handStatus" className="third column outline">
+                <div id="handStatus" className="forty column outline">
                   {this.state.currentHand && this.state.currentHand.WasDealtCards && (
                     <>
                       {this.state.currentHand.render()}
@@ -634,6 +635,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                           border: '1px solid #ddd',
                           borderRadius: '.5em',
                           textAlign: 'center',
+                          padding: '0.5em',
                         }}
                       >
                         <span>${this.state.currentHand.wager}</span>
