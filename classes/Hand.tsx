@@ -151,18 +151,19 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
               style={{
                 position: 'absolute',
                 top: '60%',
-                left: '50%',
+                left: '40%',
                 transform: 'translate(-50%, -50%)',
-                width: 'max-content',
+                width: '100%',
                 backgroundColor: 'black',
-                opacity: 0.8,
+                opacity: 0.9,
                 padding: '0.2em',
                 border: '1px solid gold',
                 borderRadius: '0.5em',
                 color: 'white',
+                textAlign: 'center',
               }}
             >
-              <h3>{this.result.toUpperCase()}</h3>
+              <span>{this.result.toUpperCase()}</span>
             </div>
           )}
         </div>
