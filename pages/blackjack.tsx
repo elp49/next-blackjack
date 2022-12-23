@@ -4,11 +4,10 @@ import Deck from '../classes/Deck';
 import Hand, { HandResult } from '../classes/Hand';
 import PlayerHand, { Decision } from '../classes/PlayerHand';
 import Results from '../classes/Results';
-import Layout from '../components/Layout/Layout';
+import ChipSelector from '../components/ChipSelector';
+import InsurancePrompt from '../components/InsurancePrompt';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
-import InsurancePrompt from '../components/InsurancePrompt';
-import ChipSelector from '../components/ChipSelector';
 
 const NUM_DECKS = 6;
 const HIT_SOFT_SEVENTEEN = true;
@@ -511,7 +510,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               </div>
 
               <div id="player" className="third row outline">
-                <div className="third column outline">free space</div>
+                <div className="third column outline">{/* free space */}</div>
                 <div id="handStatus" className="third column outline">
                   {this.state.currentHand && this.state.currentHand.WasDealtCards && (
                     <>
@@ -535,9 +534,20 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     </>
                   )}
                 </div>
-                <div className="thirty column outline">
-                  <div className="half row">Winnings</div>
-                  <div className="half row">${this.results.TotalNetWinnings}</div>
+                <div className="thirty column outline" style={{ padding: '1em' }}>
+                  <div
+                    className="quarter column"
+                    style={{
+                      backgroundColor: 'black',
+                      opacity: 0.9,
+                      border: '1px solid white',
+                      borderRadius: '0.5em',
+                      color: 'white',
+                    }}
+                  >
+                    <span>Net Winnings</span>
+                    <span>${this.results.TotalNetWinnings}</span>
+                  </div>
                 </div>
               </div>
               <div id="bottomPane" className="twenty column outline">
