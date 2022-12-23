@@ -117,10 +117,15 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
                   this.setState(
                     {
-                      isProcessing: false,
+                      isProcessing: currentlyOfferingInsurance,
                       currentlyOfferingInsurance,
                     },
-                    () => {}
+                    () => {
+                      // Dealer not showing ace, but has blackjack
+                      if (!currentlyOfferingInsurance && this.state.dealer.IsBlackjack) {
+                        this.insure(false);
+                      }
+                    }
                   );
                 });
               }, DEFAULT_TIMEOUT);
@@ -157,7 +162,12 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       currentHand.stand();
 
       this.activeHands = [currentHand];
-      this.setState({ dealer, currentHand });
+      this.setState({
+        isProcessing: false,
+        currentlyOfferingInsurance: false,
+        dealer,
+        currentHand,
+      });
     } else {
       console.log(
         `dealer DOES NOT have blackjack - ${this.state.dealer.cards[0].Rank} ${this.state.dealer.cards[1].Rank}`
@@ -166,13 +176,12 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       if (currentHand.didInsure) {
         this.activeHands = [currentHand];
         this.setState({
+          isProcessing: false,
+          currentlyOfferingInsurance: false,
           currentHand,
         });
       }
     }
-
-    console.log();
-    this.setState({ currentlyOfferingInsurance: false });
   }
 
   badDecisionResponse(makeBadDecision: boolean) {
