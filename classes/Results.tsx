@@ -1,7 +1,7 @@
+import { getCookie, setCookie } from 'cookies-next';
 import { atoi, divide, msToTime } from '../utils/utils';
 import { HandResult } from './Hand';
 import PlayerHand from './PlayerHand';
-import { getCookie, setCookie } from 'cookies-next';
 
 const COOKIE_NET_WINNINGS = 'netWinnings';
 
@@ -52,7 +52,10 @@ class Results {
     return this.hands.map((x) => x.wager).reduce((x, y) => x + y, 0);
   }
   public get TotalNetWinnings(): number {
-    return this.initialNetWinnings + this.hands.map((x) => x.NetPayout).reduce((x, y) => x + y, 0);
+    return this.initialNetWinnings + this.CurrentNetWinnings;
+  }
+  public get CurrentNetWinnings(): number {
+    return this.hands.map((x) => x.NetPayout).reduce((x, y) => x + y, 0);
   }
   public get TotalWinnings(): number {
     return this.WinningHands.map((x) => x.Payout).reduce((x, y) => x + y, 0);

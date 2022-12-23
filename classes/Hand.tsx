@@ -1,5 +1,5 @@
 import React from 'react';
-import { ACE, TEN, TWENTY, TWENTY_ONE } from '../utils/constants';
+import { ACE, TEN, TWENTY_ONE } from '../utils/constants';
 import Card from './Card';
 
 export enum HandResult {
@@ -49,7 +49,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     return this.cards.map((c) => c.Value).reduce((x, y) => x + y, 0);
   }
   public get BestValue(): number {
-    return this.ValueSoft > this.ValueHard && this.ValueSoft <= TWENTY_ONE ? this.ValueSoft : this.ValueHard;
+    return this.ValueSoft <= TWENTY_ONE ? this.ValueSoft : this.ValueHard;
   }
 
   public get IsBlackjack(): boolean {
@@ -117,28 +117,11 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     return (
       <div className="column" style={{ position: 'relative' }}>
         {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
-          <p
-          // style={{ margin: '1em' }}
-          >
+          <p>
             {/* this logic should probably be in the BestValue property */}
-            {this.didStand ? this.BestValue : this.ValueSoft <= TWENTY ? this.ValueString : this.ValueHard}
+            {this.didStand ? this.BestValue : this.ValueString}
           </p>
         )}
-        {/* <div
-          style={{
-            position: 'relative',
-            width: `calc(${children.length} * 1.3em + 5em)`,
-            height: `7em`,
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          > */}
         <div
           style={{
             position: 'relative',
@@ -167,7 +150,6 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
             </div>
           )}
         </div>
-        {/* </div> */}
       </div>
     );
   }

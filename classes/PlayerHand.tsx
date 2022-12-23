@@ -41,13 +41,15 @@ class PlayerHand extends Hand {
   public get IsWin(): boolean {
     return this.result == HandResult.WinByTotal || this.result == HandResult.WinByBlackjack;
   }
-
   public get IsLoss(): boolean {
     return this.result == HandResult.Loss;
   }
-
   public get IsBlackjack(): boolean {
     return !this.DidHit && this.IsTwentyOne && !this.didSplit;
+  }
+
+  public get OriginalWager(): number {
+    return this.didDoubleDowned ? this.wager / 2 : this.wager;
   }
 
   public get NetPayout(): number {
@@ -55,7 +57,6 @@ class PlayerHand extends Hand {
     if (this.didInsure) net += this.insurancePayout - this.wager / 2;
     return net;
   }
-
   public get Payout() {
     let multiplier: number;
 
@@ -223,7 +224,7 @@ class PlayerHand extends Hand {
         this.result = HandResult.Push;
 
         if (this.didInsure) {
-          this.insurancePayout = this.wager;
+          this.insurancePayout = this.OriginalWager;
         }
       }
 
@@ -238,7 +239,7 @@ class PlayerHand extends Hand {
       this.result = HandResult.Loss;
 
       if (this.didInsure) {
-        this.insurancePayout = this.wager;
+        this.insurancePayout = this.OriginalWager;
       }
     }
 

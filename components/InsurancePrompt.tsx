@@ -1,6 +1,6 @@
-import { Button } from '@mui/material';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import { Button } from '@mui/material';
 
 type InsuranceProps = {
   insure: (boolean) => void;
@@ -13,7 +13,7 @@ export default function InsurancePrompt({ insure, active }: InsuranceProps): JSX
 
   return (
     active && (
-      <>
+      <div className="whole row" style={{ justifyContent: 'space-around' }}>
         <Button onClick={accept} style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}>
           <CheckBoxIcon color="success" style={{ fontSize: '3rem' }} />
         </Button>
@@ -38,7 +38,7 @@ export default function InsurancePrompt({ insure, active }: InsuranceProps): JSX
         <Button onClick={decline} style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}>
           <DisabledByDefaultIcon color="error" style={{ fontSize: '3rem' }} />
         </Button>
-      </>
+      </div>
     )
   );
 }
