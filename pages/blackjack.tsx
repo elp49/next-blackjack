@@ -397,9 +397,9 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
           const currentHand = this.state.currentHand.clone();
           currentHand.addCard(this.deck.draw());
 
-          // Auto-stand split aces, but only if not dealt another ace
-          if (currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) {
-            console.log('AUTO-STAND SPLIT ACES');
+          // Auto-stand 21 or split aces but only if not dealt another ace
+          if ((currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) || currentHand.IsTwentyOne) {
+            console.log('AUTO-STAND 21 or SPLIT ACES');
             currentHand.stand();
           }
 
@@ -601,8 +601,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                 )}
               </div>
 
-              <div id="player" className="forty row outline">
-                <div className="third column outline" style={{ padding: '1em' }}>
+              <div id="player" className="forty row outline" style={{ justifyContent: 'center' }}>
+                <div className="twenty column outline" style={{ margin: 0 }}>
                   <div
                     className="thirty column"
                     style={{
@@ -619,7 +619,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     <span>${this.results.TotalNetWinnings}</span>
                   </div>
                 </div>
-                <div id="handStatus" className="forty column outline">
+                <div id="handStatus" className="third column outline" style={{ margin: 0 }}>
                   {this.state.currentHand && this.state.currentHand.WasDealtCards && (
                     <>
                       {this.state.currentHand.render()}
@@ -643,7 +643,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     </>
                   )}
                 </div>
-                <div className="thirty column outline" style={{ padding: '1em' }}>
+                <div className="twenty column outline" style={{ margin: 0 }}>
                   <div
                     className="thirty column"
                     style={{
@@ -653,6 +653,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       borderRadius: '0.5em',
                       color: 'white',
                       textAlign: 'center',
+                      padding: '0.5em',
                     }}
                   >
                     <span>Current Net Winnings</span>
