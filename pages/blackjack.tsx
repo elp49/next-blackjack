@@ -503,8 +503,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                   .filter((x) => x !== this.state.currentHand)
                   .map((x, i) => (
                     <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                      <p>Hand {this.activeHands.indexOf(x) + 1}</p>
-                      <h3>{x.result}</h3>
+                      {/* <p>Hand {this.activeHands.indexOf(x) + 1}</p>
+                      <h3>{x.result}</h3> */}
                       {x.render()}
                     </div>
                   ))}
