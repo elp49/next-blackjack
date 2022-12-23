@@ -23,17 +23,15 @@ type ChipProps = {
 
 function Chip({ value, color, onSelect }: ChipProps): JSX.Element {
   return (
-    <Button
+    <button
       onClick={() => onSelect(value)}
-      variant="contained"
       className={styles.chip}
       style={{
         backgroundImage: `url(/images/chip-${color}.png)`,
-        minWidth: '1em',
       }}
     >
       <span>{value % 1000 === 0 ? `${value / 1000}K` : value}</span>
-    </Button>
+    </button>
   );
 }
 
