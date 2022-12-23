@@ -115,7 +115,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     } catch (error) {}
 
     return (
-      <div className="column">
+      <div className="column" style={{ position: 'relative' }}>
         {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
           <p
           // style={{ margin: '1em' }}
@@ -141,10 +141,30 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
           > */}
         <div
           style={{
+            position: 'relative',
             width: `calc(${children.length} * 1.3em + 5em)`,
           }}
         >
           {parent && parent.recursiveRender(children, true)}
+          {this.result !== HandResult.InProgress && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '60%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 'max-content',
+                backgroundColor: 'black',
+                opacity: 0.8,
+                padding: '0.2em',
+                border: '1px solid gold',
+                borderRadius: '0.5em',
+                color: 'white',
+              }}
+            >
+              <h3>{this.result}</h3>
+            </div>
+          )}
         </div>
         {/* </div> */}
       </div>

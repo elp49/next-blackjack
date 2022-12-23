@@ -481,120 +481,117 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
   render() {
     return (
-      <Layout>
-        <div className={`column container outline ${styles.table}`}>
-          <div id="dealer" className="quarter column outline">
-            {this.state.dealer && this.state.dealer.render()}
-            {/* {this.state.dealer && this.state.dealer.WasDealtCards && this.state.dealer.cards.map((c) => c.render())} */}
-          </div>
+      <div className={`column container outline ${styles.table}`}>
+        <div id="dealer" className="quarter column outline">
+          {this.state.dealer && this.state.dealer.render()}
+          {/* {this.state.dealer && this.state.dealer.WasDealtCards && this.state.dealer.cards.map((c) => c.render())} */}
+        </div>
 
-          <div
-            id="controls"
-            className="column outline"
-            style={{
-              height: '75%',
-              width: '100%',
-            }}
-          >
-            {this.state.currentHand ? (
-              <>
-                <div className="half row wrap outline" style={{ justifyContent: 'space-around' }}>
-                  <InsurancePrompt insure={this.insure} active={this.state.currentlyOfferingInsurance} />
-                  {this.activeHands
-                    .filter((x) => x !== this.state.currentHand)
-                    .map((x, i) => (
-                      <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                        <p>Hand {this.activeHands.indexOf(x) + 1}</p>
-                        <h3>{x.result}</h3>
-                        {x.render()}
+        <div
+          id="controls"
+          className="column outline"
+          style={{
+            height: '75%',
+            width: '100%',
+          }}
+        >
+          {this.state.currentHand ? (
+            <>
+              <div className="half row wrap outline" style={{ justifyContent: 'space-around' }}>
+                <InsurancePrompt insure={this.insure} active={this.state.currentlyOfferingInsurance} />
+                {this.activeHands
+                  .filter((x) => x !== this.state.currentHand)
+                  .map((x, i) => (
+                    <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
+                      <p>Hand {this.activeHands.indexOf(x) + 1}</p>
+                      <h3>{x.result}</h3>
+                      {x.render()}
+                    </div>
+                  ))}
+              </div>
+
+              <div id="player" className="third row outline">
+                <div className="third column outline">free space</div>
+                <div id="handStatus" className="third column outline">
+                  {this.state.currentHand && this.state.currentHand.WasDealtCards && (
+                    <>
+                      {this.state.currentHand.render()}
+                      <div
+                        className="row"
+                        style={{
+                          backgroundColor: '#333',
+                          boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
+                          // opacity: 0.8,
+                          color: 'white',
+                          height: '2em',
+                          width: '6em',
+                          border: '1px solid #ddd',
+                          borderRadius: '.5em',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <span>${this.state.currentHand.wager}</span>
                       </div>
-                    ))}
+                    </>
+                  )}
                 </div>
-
-                <div id="player" className="quarter row outline">
-                  <div className="third column outline">free space</div>
-                  <div id="handStatus" className="third column outline">
-                    {this.state.currentHand && this.state.currentHand.WasDealtCards && (
-                      <>
-                        <p>Hand {this.activeHands.indexOf(this.state.currentHand) + 1}</p>
-                        <h3>{this.state.currentHand.result}</h3>
-                        {this.state.currentHand.render()}
-                        <div
-                          className="row"
+                <div className="third column outline">
+                  <div className="half row">Winnings</div>
+                  <div className="half row">${this.results.TotalNetWinnings}</div>
+                </div>
+              </div>
+              <div id="bottomPane" className="column outline">
+                <div id="choices" className="row outline">
+                  {this.state.currentHand.result === HandResult.InProgress
+                    ? [
+                        { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
+                        { text: 'Split', handler: this.split, decision: Decision.Split },
+                        { text: 'Stand', handler: this.stand, decision: Decision.Stand },
+                        { text: 'Hit', handler: this.hit, decision: Decision.Hit },
+                      ].map(({ text, handler, decision }) => (
+                        <Button
+                          key={text}
+                          onClick={handler}
+                          disabled={
+                            this.state.currentlyOfferingInsurance || !this.state.currentHand.isDecisionValid(decision)
+                          }
+                          variant="contained"
+                          className="someSpace"
                           style={{
-                            backgroundColor: '#333',
-                            boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
-                            // opacity: 0.8,
-                            color: 'white',
-                            height: '2em',
-                            width: '6em',
-                            border: '1px solid #ddd',
-                            borderRadius: '.5em',
-                            textAlign: 'center',
+                            height: '5em',
+                            minWidth: '1em',
+                            width: '5em',
+                            fontFamily: 'serif',
+                            backgroundColor: 'maroon',
                           }}
                         >
-                          <span>${this.state.currentHand.wager}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="third column outline">
-                    <div className="half row">Winnings</div>
-                    <div className="half row">${this.results.TotalNetWinnings}</div>
-                  </div>
-                </div>
-                <div id="bottomPane" className="quarter column outline">
-                  <div id="choices" className="half row outline">
-                    {this.state.currentHand.result === HandResult.InProgress
-                      ? [
-                          { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
-                          { text: 'Split', handler: this.split, decision: Decision.Split },
-                          { text: 'Stand', handler: this.stand, decision: Decision.Stand },
-                          { text: 'Hit', handler: this.hit, decision: Decision.Hit },
-                        ].map(({ text, handler, decision }) => (
-                          <Button
-                            key={text}
-                            onClick={handler}
-                            disabled={
-                              this.state.currentlyOfferingInsurance || !this.state.currentHand.isDecisionValid(decision)
-                            }
-                            variant="contained"
-                            className="someSpace"
-                            style={{
-                              height: '5em',
-                              minWidth: '1em',
-                              width: '5em',
-                              fontFamily: 'serif',
-                              backgroundColor: 'maroon',
-                            }}
-                          >
-                            {text}
-                          </Button>
-                        ))
-                      : [
-                          {
-                            text: 'Change Bet',
-                            handler: () => this.setState({ dealer: null, currentHand: null, wager: 0 }),
-                          },
-                          { text: 'Rebet & Deal', handler: this.rebetAndDeal },
-                        ].map(({ text, handler }) => (
-                          <Button
-                            key={text}
-                            onClick={handler}
-                            variant="contained"
-                            className="someSpace"
-                            style={{
-                              height: '4em',
-                              minWidth: '1em',
-                              width: '12em',
-                              fontFamily: 'serif',
-                              backgroundColor: 'maroon',
-                            }}
-                          >
-                            {text}
-                          </Button>
-                        ))}
-                    {/* {this.state.validDecisions.map((valid, i) => (
+                          {text}
+                        </Button>
+                      ))
+                    : [
+                        {
+                          text: 'Change Bet',
+                          handler: () => this.setState({ dealer: null, currentHand: null, wager: 0 }),
+                        },
+                        { text: 'Rebet & Deal', handler: this.rebetAndDeal },
+                      ].map(({ text, handler }) => (
+                        <Button
+                          key={text}
+                          onClick={handler}
+                          variant="contained"
+                          className="someSpace"
+                          style={{
+                            height: '4em',
+                            minWidth: '1em',
+                            width: '12em',
+                            fontFamily: 'serif',
+                            backgroundColor: 'maroon',
+                          }}
+                        >
+                          {text}
+                        </Button>
+                      ))}
+                  {/* {this.state.validDecisions.map((valid, i) => (
                       <div key={`choice-${i}`} className="someSpace">
                         <Button
                           onClick={this.decisionHandlers.find(({ decision }) => decision === valid).handler}
@@ -605,23 +602,22 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                         </Button>
                       </div>
                     ))} */}
-                  </div>
-                  <div className="half row outline">
-                    <Button onClick={this.showResults} variant="contained" size="small" className="someSpace">
-                      Results
-                    </Button>
-                    <Button onClick={this.redeal} variant="contained" size="small" className="someSpace">
-                      Redeal
-                    </Button>
-                  </div>
                 </div>
-              </>
-            ) : (
-              <ChipSelector deal={this.deal} />
-            )}
-          </div>
+                <div className="row outline">
+                  <Button onClick={this.showResults} variant="contained" size="small" className="someSpace">
+                    Results
+                  </Button>
+                  <Button onClick={this.redeal} variant="contained" size="small" className="someSpace">
+                    Redeal
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <ChipSelector deal={this.deal} />
+          )}
         </div>
-      </Layout>
+      </div>
     );
   }
 }

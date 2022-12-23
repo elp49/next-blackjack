@@ -45,7 +45,7 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
   return (
     <div className="whole column">
       <div className="half row outline">{wager > 0 && <h3>${wager}</h3>}</div>
-      <div id="chips" className="quarter column" style={{ justifyContent: 'space-evenly', padding: '0 4em 0 4em' }}>
+      <div id="chips" className="third column" style={{ justifyContent: 'space-evenly', padding: '0 4em 0 4em' }}>
         {CHIPS.map((row, i) => (
           <div key={`chipRow-${i}`} className="half row outline" style={{ justifyContent: 'space-evenly' }}>
             {row.map(({ value, color }) => (
