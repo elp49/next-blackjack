@@ -16,8 +16,8 @@ class Deck {
 
   constructor(nDecks: number) {
     console.log(' ==== NEW DECK ====');
-    // this.cards = this.allTens(nDecks);
-    this.cards = this.createDefaultDeck(nDecks);
+    this.cards = this.allTens(nDecks);
+    // this.cards = this.createDefaultDeck(nDecks);
     this.shuffle();
 
     this.createDefaultDeck = this.createDefaultDeck.bind(this);

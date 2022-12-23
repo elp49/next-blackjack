@@ -110,6 +110,18 @@ button {
   min-width: 99vw;
   margin: auto;
 }
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .whole {
   height: 100%;
   width: 100%;
@@ -144,17 +156,15 @@ button {
   width: 25%;
   margin: auto;
 }
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+.column > .tenth {
+  height: 10%;
+  width: 100%;
+  margin: auto;
 }
-.column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.row > .tenth {
+  height: 100%;
+  width: 10%;
+  margin: auto;
 }
 .wrap {
   flex-wrap: wrap;

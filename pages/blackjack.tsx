@@ -1,6 +1,4 @@
 import { Button } from '@mui/material';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import React from 'react';
 import Deck from '../classes/Deck';
 import Hand, { HandResult } from '../classes/Hand';
@@ -9,6 +7,8 @@ import Results from '../classes/Results';
 import Layout from '../components/Layout/Layout';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
+import InsurancePrompt from '../components/InsurancePrompt';
+import ChipSelector from '../components/ChipSelector';
 
 const NUM_DECKS = 6;
 const HIT_SOFT_SEVENTEEN = true;
@@ -42,8 +42,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.deck = null;
     this.activeHands = [];
 
-    this.addChip = this.addChip.bind(this);
-    this.placeBet = this.placeBet.bind(this);
     this.rebetAndDeal = this.rebetAndDeal.bind(this);
     this.deal = this.deal.bind(this);
     this.insure = this.insure.bind(this);
@@ -53,45 +51,16 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.split = this.split.bind(this);
     this.showResults = this.showResults.bind(this);
     this.redeal = this.redeal.bind(this);
-
-    this.decisionHandlers = [
-      { decision: Decision.PlaceBet, handler: () => this.placeBet(() => {}) },
-      { decision: Decision.RebetAndDeal, handler: this.rebetAndDeal },
-      { decision: Decision.Deal, handler: this.deal },
-      { decision: Decision.DoubleDown, handler: this.doubleDown },
-      { decision: Decision.Split, handler: this.split },
-      { decision: Decision.Stand, handler: this.stand },
-      { decision: Decision.Hit, handler: this.hit },
-    ];
-  }
-
-  addChip(chip: number) {
-    console.log(`addChip(${chip})`);
-    console.log(`this.state.wager: ${this.state.wager}`);
-    this.setState({ wager: this.state.wager + chip }, () => console.log(`new wager: ${this.state.wager}`));
-  }
-
-  placeBet(callback?: () => void) {
-    console.log();
-    console.log('placeBet');
-
-    const currentHand = new PlayerHand({ wager: this.state.wager });
-    this.activeHands = [currentHand];
-    this.setState(
-      {
-        currentHand,
-      },
-      callback
-    );
   }
 
   rebetAndDeal() {
     console.log();
     console.log('rebetAndDeal');
-    this.placeBet(this.deal);
+    const wager = this.results.hands[this.results.hands.length - 1].wager;
+    this.deal(wager);
   }
 
-  deal() {
+  deal(wager: number) {
     console.log();
     console.log('Dealing');
 
@@ -104,21 +73,14 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       this.deck.draw(false);
     }
 
+    const currentHand = new PlayerHand({ wager });
     const dealer = new Hand({ isDealer: true });
-    let currentHand = this.state.currentHand.clone();
-    // console.log(`currentHand: ${currentHand.toString()}`);
 
     // Deal cards
     currentHand.addCard(this.deck.draw());
     dealer.addCard(this.deck.draw());
     currentHand.addCard(this.deck.draw());
     dealer.addCard(this.deck.draw(false)); // hide dealer second card
-
-    console.log();
-    console.log(`Dealer: ${dealer.toString()}`);
-    // for (let i = 0; i < activeHands.length; i++) console.log(`Hand ${i + 1}:\t${activeHands[i].ToString()}`);
-    console.log(`Hand:\t${currentHand.toString()}`);
-    console.log();
 
     const currentlyOfferingInsurance = dealer.cards[0].IsAce;
     this.activeHands = [currentHand];
@@ -537,55 +499,16 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             {this.state.currentHand ? (
               <>
                 <div className="half row wrap outline" style={{ justifyContent: 'space-around' }}>
+                  <InsurancePrompt insure={this.insure} active={this.state.currentlyOfferingInsurance} />
                   {this.activeHands
                     .filter((x) => x !== this.state.currentHand)
                     .map((x, i) => (
-                      <div
-                        key={`activeHand-${i}`}
-                        className="column"
-                        style={{ fontSize: '1em', margin: '0 1em 0 1em' }}
-                      >
+                      <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
                         <p>Hand {this.activeHands.indexOf(x) + 1}</p>
                         <h3>{x.result}</h3>
                         {x.render()}
                       </div>
                     ))}
-                </div>
-                <div className="half row outline">
-                  {this.state.currentlyOfferingInsurance && (
-                    <>
-                      <Button
-                        onClick={() => this.insure(true)}
-                        style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}
-                      >
-                        <CheckBoxIcon color="success" style={{ fontSize: '3rem' }} />
-                      </Button>
-                      <div
-                        className="row"
-                        style={{
-                          backgroundColor: '#333',
-                          boxShadow: '0 0.0625em 0.125em rgba(0, 0, 0, 0.15)',
-                          // opacity: 0.8,
-                          color: 'white',
-                          fontWeight: '800',
-                          height: '3em',
-                          width: '10em',
-                          margin: '2em',
-                          border: '1px solid #ddd',
-                          borderRadius: '.5em',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <span>INSURANCE?</span>
-                      </div>
-                      <Button
-                        onClick={() => this.insure(false)}
-                        style={{ backgroundColor: 'white', padding: 0, minWidth: '1em' }}
-                      >
-                        <DisabledByDefaultIcon color="error" style={{ fontSize: '3rem' }} />
-                      </Button>
-                    </>
-                  )}
                 </div>
 
                 <div id="player" className="quarter row outline">
@@ -694,45 +617,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                 </div>
               </>
             ) : (
-              <>
-                <div className="half row outline">{this.state.wager > 0 && <h3>{this.state.wager}</h3>}</div>
-                <div id="chips" className="half row wrap outline" style={{ padding: '0 4em 0 4em' }}>
-                  {[
-                    { value: 1, color: 'white' },
-                    { value: 5, color: 'red' },
-                    { value: 25, color: 'green' },
-                    { value: 100, color: 'black' },
-                    { value: 500, color: 'purple' },
-                    { value: 1000, color: 'yellow' },
-                  ].map(({ value, color }) => (
-                    <Button
-                      key={`chip${value}`}
-                      onClick={() => this.addChip(value)}
-                      variant="contained"
-                      className={styles.chip}
-                      style={{
-                        // flexBasis: '25%',
-                        backgroundImage: `url(/images/chip-${color}.png)`,
-                        minWidth: '1em',
-                        backgroundColor: color,
-                      }}
-                    >
-                      <span>{value % 1000 === 0 ? `${value / 1000}K` : value}</span>
-                    </Button>
-                  ))}
-                  <Button onClick={() => this.setState({ wager: 0 })} variant="contained" style={{ margin: '1em' }}>
-                    Clear
-                  </Button>
-                  <Button
-                    onClick={this.rebetAndDeal}
-                    disabled={this.state.wager === 0}
-                    variant="contained"
-                    style={{ margin: '1em' }}
-                  >
-                    Deal
-                  </Button>
-                </div>
-              </>
+              <ChipSelector deal={this.deal} />
             )}
           </div>
         </div>
