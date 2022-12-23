@@ -5,12 +5,15 @@ import Hand, { HandResult } from '../classes/Hand';
 import PlayerHand, { Decision } from '../classes/PlayerHand';
 import Results from '../classes/Results';
 import ChipSelector from '../components/ChipSelector';
-import InsurancePrompt from '../components/InsurancePrompt';
+import Prompt from '../components/Prompt';
 import styles from '../styles/table.module.css';
-import { ACE, DECK_SIZE, SEVENTEEN } from '../utils/constants';
+import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWENTY_ONE } from '../utils/constants';
 
 const NUM_DECKS = 6;
 const HIT_SOFT_SEVENTEEN = true;
+
+// const DEFAULT_TIMEOUT = 100;
+const DEFAULT_TIMEOUT = 800;
 
 export interface IBlackjackState {
   dealer: Hand;
@@ -19,6 +22,8 @@ export interface IBlackjackState {
   wager: number;
   currentlyOfferingInsurance: boolean;
   isProcessing: boolean;
+  badDecision: string;
+  isQuestioningBadDecision: boolean;
 }
 
 class Blackjack extends React.Component<{}, IBlackjackState> {
@@ -37,6 +42,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       wager: 0,
       currentlyOfferingInsurance: false,
       isProcessing: false,
+      badDecision: '',
+      isQuestioningBadDecision: false,
     };
 
     this.results = new Results();
@@ -46,6 +53,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.rebetAndDeal = this.rebetAndDeal.bind(this);
     this.deal = this.deal.bind(this);
     this.insure = this.insure.bind(this);
+    this.badDecisionResponse = this.badDecisionResponse.bind(this);
     this.hit = this.hit.bind(this);
     this.stand = this.stand.bind(this);
     this.doubleDown = this.doubleDown.bind(this);
@@ -85,7 +93,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     const dealer = new Hand({ isDealer: true });
 
     // Deal cards
-    const TIMEOUT = 800;
     currentHand.addCard(this.deck.draw());
 
     this.activeHands = [currentHand];
@@ -116,11 +123,11 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     () => {}
                   );
                 });
-              }, TIMEOUT);
+              }, DEFAULT_TIMEOUT);
             });
-          }, TIMEOUT);
+          }, DEFAULT_TIMEOUT);
         });
-      }, TIMEOUT);
+      }, DEFAULT_TIMEOUT);
     });
   }
 
@@ -168,24 +175,33 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.setState({ currentlyOfferingInsurance: false });
   }
 
-  hit() {
+  badDecisionResponse(makeBadDecision: boolean) {
+    console.log(
+      `BAD DECISION RESPoNSE =================== ${makeBadDecision ? 'livin life on the edge' : 'playin it safe'}`
+    );
+    this.setState({ isProcessing: false, badDecision: '', isQuestioningBadDecision: false }, () => {
+      if (makeBadDecision) {
+        this.hit(true);
+      }
+    });
+  }
+
+  hit(makeBadDecision: boolean) {
     console.log();
     console.log('hit');
-    let confirm: boolean = true;
-    // confirm bad decisions
-    /* if (currentHand.ValueHard >= Hand.SEVENTEEN)
-    {
-        Console.Write($"Hit hard {currentHand.ValueHard}? ");
-        if (!IsYes()) confirm = false;
-    }
-    else if (currentHand.ValueSoft >= Hand.NINETEEN &&
-        currentHand.ValueSoft < Hand.TWENTY_ONE)
-    {
-        Console.Write($"Hit soft {currentHand.ValueSoft}? ");
-        if (!IsYes()) confirm = false;
-    } */
 
-    if (confirm) {
+    // confirm bad decisions
+    let badDecision = '';
+    if (this.state.currentHand.ValueHard >= SEVENTEEN) {
+      badDecision = `Hit hard ${this.state.currentHand.ValueHard}?`;
+    } else if (this.state.currentHand.ValueSoft >= NINETEEN && this.state.currentHand.ValueSoft < TWENTY_ONE) {
+      badDecision = `Hit soft ${this.state.currentHand.ValueSoft}?`;
+    }
+
+    if (!makeBadDecision && badDecision !== '') {
+      console.log(`BAD DECISION =================== ${badDecision}`);
+      this.setState({ isProcessing: true, badDecision, isQuestioningBadDecision: true });
+    } else {
       const currentHand = this.state.currentHand.clone();
 
       console.log('current hand:');
@@ -193,7 +209,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       console.log('active hands:');
       this.activeHands.forEach((x) => console.log(x.toString()));
 
-      const TIMEOUT = 800;
       currentHand.addCard(this.deck.draw(false));
 
       const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
@@ -230,7 +245,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               isProcessing: false,
               currentHand,
             });
-          }, TIMEOUT);
+          }, DEFAULT_TIMEOUT);
         }
       );
     }
@@ -471,7 +486,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             // this.setState({ dealer });
             setTimeout(() => {
               this.setState({ dealer });
-            }, 800);
+            }, DEFAULT_TIMEOUT);
           }
 
           // Calculate results
@@ -561,7 +576,16 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
           {this.state.currentHand ? (
             <>
               <div className="half column outline">
-                <InsurancePrompt insure={this.insure} active={this.state.currentlyOfferingInsurance} />
+                <Prompt
+                  promptText="INSURANCE?"
+                  respond={this.insure}
+                  isPromptActive={this.state.currentlyOfferingInsurance}
+                />
+                <Prompt
+                  promptText={this.state.badDecision}
+                  respond={this.badDecisionResponse}
+                  isPromptActive={this.state.isQuestioningBadDecision}
+                />
                 {this.activeHands.length > 0 && (
                   <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
                     {this.activeHands
@@ -641,7 +665,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                         { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
                         { text: 'Split', handler: this.split, decision: Decision.Split },
                         { text: 'Stand', handler: this.stand, decision: Decision.Stand },
-                        { text: 'Hit', handler: this.hit, decision: Decision.Hit },
+                        { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
                       ].map(({ text, handler, decision }) => (
                         <button
                           key={text}
