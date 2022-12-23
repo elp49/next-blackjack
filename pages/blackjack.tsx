@@ -557,8 +557,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                           }
                           style={{
                             fontSize: '1rem',
-                            height: '5em',
-                            width: '5em',
+                            height: '4.5em',
+                            width: '5.5em',
                             minWidth: '1em',
                             fontFamily: 'serif',
                             backgroundColor: 'maroon',
@@ -605,11 +605,11 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       </div>
                     ))} */}
                 </div>
-                <div className="half row outline">
-                  <Button onClick={this.showResults} variant="contained" size="small" className="someSpace">
+                <div className="half row outline" style={{ justifyContent: 'space-evenly' }}>
+                  <Button onClick={this.showResults} variant="contained" size="small">
                     Results
                   </Button>
-                  <Button onClick={this.redeal} variant="contained" size="small" className="someSpace">
+                  <Button onClick={this.redeal} variant="contained" size="small">
                     Redeal
                   </Button>
                 </div>
