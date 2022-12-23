@@ -4,8 +4,8 @@ import Card from './Card';
 
 export enum HandResult {
   InProgress = 'In Progress',
-  WinByTotal = 'Win by Total',
-  WinByBlackjack = 'Win by Blackjack',
+  WinByTotal = 'Win',
+  WinByBlackjack = 'Blackjack',
   Loss = 'Loss',
   Push = 'Push',
 }
@@ -162,7 +162,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
                 color: 'white',
               }}
             >
-              <h3>{this.result}</h3>
+              <h3>{this.result.toUpperCase()}</h3>
             </div>
           )}
         </div>
