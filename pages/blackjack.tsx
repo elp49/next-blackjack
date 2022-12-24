@@ -14,13 +14,12 @@ const NUM_DECKS = 6;
 const HIT_SOFT_SEVENTEEN = true;
 
 // const DEFAULT_TIMEOUT = 100;
-const DEFAULT_TIMEOUT = 800;
+const DEFAULT_TIMEOUT = 500;
 
 export interface IBlackjackState {
   dealer: Hand;
   currentHand: PlayerHand;
   validDecisions: Decision[];
-  wager: number;
   currentlyOfferingInsurance: boolean;
   isProcessing: boolean;
   badDecision: string;
@@ -33,6 +32,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   deck: Deck;
   activeHands: PlayerHand[];
   decisionHandlers: { decision: Decision; handler: (any?: any) => void }[];
+  wager: number;
 
   constructor(props) {
     super(props);
@@ -41,7 +41,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       dealer: null,
       currentHand: null,
       validDecisions: [Decision.PlaceBet],
-      wager: 0,
       currentlyOfferingInsurance: false,
       isProcessing: false,
       badDecision: '',
@@ -74,6 +73,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       wager = this.results.hands[this.results.hands.length - 1].OriginalWager;
     } else if (this.state.currentHand) {
       wager = this.state.currentHand.OriginalWager;
+    } else {
+      wager = this.wager;
     }
 
     this.deal(wager);
@@ -92,6 +93,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       this.deck.draw(false);
     }
 
+    this.wager = wager;
     const currentHand = new PlayerHand({ wager });
     const dealer = new Hand({ isDealer: true });
 
@@ -99,28 +101,22 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     currentHand.addCard(this.deck.draw());
 
     this.activeHands = [currentHand];
-    this.setState({ isProcessing: true, currentHand, dealer }, () => {
+    this.setState({ isProcessing: true, cancelTimeout: false, currentHand, dealer }, () => {
       setTimeout(() => {
-        if (this.state.cancelTimeout) {
-          this.setState({ cancelTimeout: false });
-        } else {
+        if (!this.state.cancelTimeout) {
           const dealer = this.state.dealer.clone();
           dealer.addCard(this.deck.draw());
 
           this.setState({ dealer }, () => {
             setTimeout(() => {
-              if (this.state.cancelTimeout) {
-                this.setState({ cancelTimeout: false });
-              } else {
+              if (!this.state.cancelTimeout) {
                 const currentHand = this.state.currentHand.clone();
                 currentHand.addCard(this.deck.draw());
                 this.activeHands = [currentHand];
 
                 this.setState({ currentHand }, () => {
                   setTimeout(() => {
-                    if (this.state.cancelTimeout) {
-                      this.setState({ cancelTimeout: false });
-                    } else {
+                    if (!this.state.cancelTimeout) {
                       const dealer = this.state.dealer.clone();
                       dealer.addCard(this.deck.draw(false)); // hide dealer second card
 
@@ -140,12 +136,18 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                           }
                         );
                       });
+                    } else {
+                      this.setState({ cancelTimeout: false });
                     }
                   }, DEFAULT_TIMEOUT);
                 });
+              } else {
+                this.setState({ cancelTimeout: false });
               }
             }, DEFAULT_TIMEOUT);
           });
+        } else {
+          this.setState({ cancelTimeout: false });
         }
       }, DEFAULT_TIMEOUT);
     });
@@ -191,12 +193,15 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       if (currentHand.didInsure) {
         this.activeHands = [currentHand];
         this.setState({
-          isProcessing: false,
-          currentlyOfferingInsurance: false,
           currentHand,
         });
       }
     }
+
+    this.setState({
+      isProcessing: false,
+      currentlyOfferingInsurance: false,
+    });
   }
 
   badDecisionResponse(makeBadDecision: boolean) {
@@ -346,7 +351,24 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     console.log();
     console.log();
     console.log();
-    this.setState({ cancelTimeout: true }, this.rebetAndDeal);
+    /* if (this.state.isProcessing) {
+      this.setState(
+        {
+          isProcessing: false,
+          currentlyOfferingInsurance: false,
+          cancelTimeout: true,
+        },
+        this.rebetAndDeal
+      );
+    } else this.rebetAndDeal(); */
+    this.setState(
+      {
+        isProcessing: false,
+        currentlyOfferingInsurance: false,
+        cancelTimeout: true,
+      },
+      this.rebetAndDeal
+    );
   };
 
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IBlackjackState>, snapshot?: any): void {
@@ -630,7 +652,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                 className="forty row outline"
                 style={{ justifyContent: 'space-around', alignItems: 'flex-end' }}
               >
-                <div id="handStatus" className="column outline" style={{ margin: 0 }}>
+                <div id="handStatus" className="column outline" style={{ marginBottom: '1em' }}>
                   {this.state.currentHand && this.state.currentHand.WasDealtCards && (
                     <>
                       {this.state.currentHand.render()}
@@ -643,7 +665,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                 </div>
               </div>
               <div id="bottomPane" className="twenty column outline">
-                <div id="choices" className="half row outline" style={{ justifyContent: 'space-evenly' }}>
+                <div id="choices" className="half row outline" style={{ justifyContent: 'center' }}>
                   {this.state.currentHand.result === HandResult.InProgress
                     ? [
                         { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
@@ -663,6 +685,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                             minWidth: '1em',
                             backgroundColor: 'maroon',
                             color: 'white',
+                            margin: '1em',
                           }}
                         >
                           {text.toUpperCase()}
@@ -686,21 +709,22 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                             fontFamily: 'serif',
                             backgroundColor: 'maroon',
                             padding: 0,
+                            margin: '1em',
                           }}
                         >
                           {text}
                         </Button>
                       ))}
                 </div>
-                <div className="half row outline" style={{ justifyContent: 'space-evenly' }}>
-                  <Button onClick={this.showResults} variant="contained" size="small">
+                <div className="half row outline" style={{ justifyContent: 'center' }}>
+                  {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
                     Results
-                  </Button>
-                  <Panel info={['Total', `$${this.results.TotalNetWinnings}`]} />
-                  <Panel info={['Current', `$${this.results.CurrentNetWinnings}`]} />
-                  <Button onClick={this.redeal} variant="contained" size="small">
+                  </Button> */}
+                  <Panel info={['Total', `$${this.results.TotalNetWinnings}`]} style={{ margin: '1em' }} />
+                  <Panel info={['Current', `$${this.results.CurrentNetWinnings}`]} style={{ margin: '1em' }} />
+                  {/* <Button onClick={this.redeal} variant="contained" size="small" style={{ margin: '1em' }}>
                     Redeal
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </>

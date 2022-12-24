@@ -121,7 +121,14 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     return (
       <div className="column">
         {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
-          <p>
+          <p
+            style={{
+              fontSize: '1.5em',
+              color: 'white',
+              // textShadow: '-1px 1px 2px #000, 1px 1px 2px #000, 1px -1px 2px #000, -1px -1px 2px #000',
+              textShadow: '-1px 1px 2px #000',
+            }}
+          >
             {/* this logic should probably be in the BestValue property */}
             {this.didStand ? this.BestValue : this.ValueString}
           </p>
@@ -129,7 +136,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
         <div
           style={{
             position: 'relative',
-            width: `calc(${children.length} * 1.3em + 5em)`,
+            width: `calc(${children.length} * 1.5em + 5em)`,
           }}
         >
           {parent && parent.recursiveRender(children, true)}
@@ -137,10 +144,8 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
             <div
               style={{
                 position: 'absolute',
-                top: '60%',
-                left: '40%',
-                transform: 'translate(-50%, -50%)',
-                width: '100%',
+                top: '50%',
+                minWidth: 'calc(5em + 6px)',
                 backgroundColor: 'black',
                 opacity: 0.9,
                 padding: '0.2em',

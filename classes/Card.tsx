@@ -171,7 +171,7 @@ class Card extends React.Component {
     </div>
   );
 
-  recursiveRender(cards: Card[], isInitialRecursion: boolean): JSX.Element {
+  recursiveRender(cards: Card[], isFirst: boolean): JSX.Element {
     const key = `deck-${this.deckIndex}-card-${this.index}`;
     const grandchildren = [...cards];
     const child = grandchildren && grandchildren.length > 0 ? grandchildren.shift() : null;
@@ -181,11 +181,7 @@ class Card extends React.Component {
       grandchildren.forEach((x) => console.log(`grandchild: ${x.Rank}`)); */
     } catch (error) {}
     return (
-      <div
-        key={key}
-        className={styles.card}
-        style={{ color: this.Color, marginLeft: `${!isInitialRecursion && '1.3em'}` }}
-      >
+      <div key={key} className={styles.card} style={{ color: this.Color, marginLeft: `${!isFirst && '1.5em'}` }}>
         {this.isFaceUp ? (
           <>
             {this.getCardSuits()}
@@ -200,7 +196,7 @@ class Card extends React.Component {
             {child && child.recursiveRender(grandchildren, false)}
           </>
         ) : (
-          <div className={styles.cardBack}>?</div>
+          <div className={styles.cardBack}></div>
         )}
       </div>
     );

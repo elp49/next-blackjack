@@ -28,7 +28,7 @@ const Layout = ({ children }: LayoutProps) => {
       <Header />
       {children}
       {/* <div className={styles.container}>{children}</div> */}
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 };
