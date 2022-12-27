@@ -1,7 +1,5 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
 import styles from '../../styles/layout.module.css';
-import { createStyle } from '../../utils/utils';
 import Footer from './Footer';
 import Header from './Header';
 
@@ -12,22 +10,22 @@ type LayoutProps = {
 };
 
 const Layout = ({ children }: LayoutProps) => {
-  useEffect(() => {
+  /* useEffect(() => {
     createStyle(`
       html, body {
       }
     `);
-  }, []);
+  }, []); */
 
   return (
     <div id={'layout'} className={styles.layout}>
       <Head>
         <title>{TITLE}</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <Header />
       {children}
-      {/* <div className={styles.container}>{children}</div> */}
       <Footer />
     </div>
   );

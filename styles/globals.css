@@ -18,6 +18,10 @@ body {
   scroll-behavior: smooth;
 }
 
+body {
+  background-image: url('/images/table-3.jpg');
+}
+
 /* h1 {
   font-size: 4rem;
 }
