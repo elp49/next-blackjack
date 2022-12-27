@@ -23,7 +23,8 @@ export interface IBlackjackState {
   currentlyOfferingInsurance: boolean;
   isProcessing: boolean;
   badDecision: string;
-  isQuestioningBadDecision: boolean;
+  isQuestioningBadDecisionToHit: boolean;
+  isQuestioningBadDecisionToDouble: boolean;
   cancelTimeout: boolean;
   count: number;
 }
@@ -45,7 +46,8 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       currentlyOfferingInsurance: false,
       isProcessing: false,
       badDecision: '',
-      isQuestioningBadDecision: false,
+      isQuestioningBadDecisionToHit: false,
+      isQuestioningBadDecisionToDouble: false,
       cancelTimeout: false,
       count: 0,
     };
@@ -214,15 +216,23 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     });
   }
 
-  badDecisionResponse(makeBadDecision: boolean) {
+  badDecisionResponse(makeBadDecision: boolean, callback: () => void) {
     console.log(
       `BAD DECISION RESPoNSE =================== ${makeBadDecision ? 'livin life on the edge' : 'playin it safe'}`
     );
-    this.setState({ isProcessing: false, badDecision: '', isQuestioningBadDecision: false }, () => {
-      if (makeBadDecision) {
-        this.hit(true);
+    this.setState(
+      {
+        isProcessing: false,
+        badDecision: '',
+        isQuestioningBadDecisionToHit: false,
+        isQuestioningBadDecisionToDouble: false,
+      },
+      () => {
+        if (makeBadDecision) {
+          callback();
+        }
       }
-    });
+    );
   }
 
   hit(makeBadDecision: boolean) {
@@ -239,7 +249,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
     if (!makeBadDecision && badDecision !== '') {
       console.log(`BAD DECISION =================== ${badDecision}`);
-      this.setState({ isProcessing: true, badDecision, isQuestioningBadDecision: true });
+      this.setState({ isProcessing: true, badDecision, isQuestioningBadDecisionToHit: true });
     } else {
       const currentHand = this.state.currentHand.clone();
 
@@ -311,18 +321,32 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.setState({ currentHand });
   }
 
-  doubleDown() {
+  doubleDown(makeBadDecision: boolean) {
     console.log();
     console.log('doubleDown');
-    const currentHand = this.state.currentHand.clone();
-    const card = this.deck.draw();
-    currentHand.doubleDown(card);
-    const count = this.state.count + card.CountValue;
 
-    const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
-    this.activeHands[iCurrentHand] = currentHand;
+    // confirm bad decisions
+    let badDecision = '';
+    if (this.state.currentHand.ValueHard >= SEVENTEEN) {
+      badDecision = `Double hard ${this.state.currentHand.ValueHard}?`;
+    } else if (this.state.currentHand.ValueSoft >= NINETEEN && this.state.currentHand.ValueSoft < TWENTY_ONE) {
+      badDecision = `Double soft ${this.state.currentHand.ValueSoft}?`;
+    }
 
-    this.setState({ currentHand, count });
+    if (!makeBadDecision && badDecision !== '') {
+      console.log(`BAD DECISION =================== ${badDecision}`);
+      this.setState({ isProcessing: true, badDecision, isQuestioningBadDecisionToDouble: true });
+    } else {
+      const currentHand = this.state.currentHand.clone();
+      const card = this.deck.draw();
+      currentHand.doubleDown(card);
+      const count = this.state.count + card.CountValue;
+
+      const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
+      this.activeHands[iCurrentHand] = currentHand;
+
+      this.setState({ currentHand, count });
+    }
   }
 
   split() {
@@ -641,8 +665,13 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               />
               <Prompt
                 promptText={this.state.badDecision}
-                respond={this.badDecisionResponse}
-                isPromptActive={this.state.isQuestioningBadDecision}
+                respond={(response: boolean) => this.badDecisionResponse(response, () => this.hit(true))}
+                isPromptActive={this.state.isQuestioningBadDecisionToHit}
+              />
+              <Prompt
+                promptText={this.state.badDecision}
+                respond={(response: boolean) => this.badDecisionResponse(response, () => this.hit(true))}
+                isPromptActive={this.state.isQuestioningBadDecisionToDouble}
               />
               {this.activeHands.length > 0 && (
                 <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
@@ -687,7 +716,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               <div id="choices" className="half row outline" style={{ justifyContent: 'center' }}>
                 {this.state.currentHand.result === HandResult.InProgress
                   ? [
-                      { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
+                      { text: 'Double Down', handler: () => this.doubleDown(false), decision: Decision.DoubleDown },
                       { text: 'Split', handler: this.split, decision: Decision.Split },
                       { text: 'Stand', handler: this.stand, decision: Decision.Stand },
                       { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },

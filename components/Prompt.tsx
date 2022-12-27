@@ -4,7 +4,7 @@ import { Button } from '@mui/material';
 
 type PromptProps = {
   promptText: string;
-  respond: (boolean) => void;
+  respond: (response: boolean) => void;
   isPromptActive: boolean;
 };
 
