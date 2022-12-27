@@ -113,11 +113,9 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       setTimeout(() => {
         if (!this.state.cancelTimeout) {
           const dealer = this.state.dealer.clone();
-          const card = this.deck.draw();
-          dealer.addCard(card);
-          count += card.CountValue;
+          dealer.addCard(this.deck.draw(false)); // hide dealer first card
 
-          this.setState({ dealer, count }, () => {
+          this.setState({ dealer }, () => {
             setTimeout(() => {
               if (!this.state.cancelTimeout) {
                 const currentHand = this.state.currentHand.clone();
@@ -130,9 +128,11 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                   setTimeout(() => {
                     if (!this.state.cancelTimeout) {
                       const dealer = this.state.dealer.clone();
-                      dealer.addCard(this.deck.draw(false)); // hide dealer second card
+                      const card = this.deck.draw();
+                      dealer.addCard(card); // show dealer second card
+                      count += card.CountValue;
 
-                      this.setState({ dealer }, () => {
+                      this.setState({ dealer, count }, () => {
                         const currentlyOfferingInsurance = this.state.dealer.cards[0].IsAce;
 
                         this.setState(
@@ -538,12 +538,12 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
         // All active hands either stood or busted
         else {
           console.log('All active hands either stood or busted');
-          // Flip second dealer card before playing
-          if (!this.state.dealer.cards[1].isFaceUp) {
+          // Flip first dealer card before playing
+          if (!this.state.dealer.cards[0].isFaceUp) {
             console.log('flipping dealer second card');
             const dealer = this.state.dealer.clone();
-            dealer.cards[1].flip();
-            const count = this.state.count + dealer.cards[1].CountValue;
+            dealer.cards[0].flip(); // show dealer first card
+            const count = this.state.count + dealer.cards[0].CountValue;
             this.setState({ dealer, count });
           }
 

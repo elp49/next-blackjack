@@ -207,7 +207,7 @@ class Card extends React.Component {
             {child && child.recursiveRender(grandchildren, false)}
           </>
         ) : (
-          <div className={styles.cardBack}></div>
+          <div className={styles.cardBack}>{child && child.recursiveRender(grandchildren, false)}</div>
         )}
       </div>
     );

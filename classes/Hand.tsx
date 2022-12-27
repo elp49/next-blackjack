@@ -120,7 +120,7 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
 
     return (
       <div className="column">
-        {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[1].isFaceUp)) && (
+        {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[0].isFaceUp)) && (
           <p
             style={{
               fontSize: '1.5em',
