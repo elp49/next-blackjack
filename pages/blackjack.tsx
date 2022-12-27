@@ -715,7 +715,11 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               <div className="quarter column outline"></div>
             </div>
             <div id="bottomPane" className="twenty column outline">
-              <div id="choices" className="half row outline" style={{ justifyContent: 'center' }}>
+              <div
+                id="choices"
+                className="half row outline"
+                style={{ justifyContent: 'center', alignItems: 'flex-end' }}
+              >
                 {this.state.currentHand.result === HandResult.InProgress
                   ? [
                       { text: 'Double Down', handler: () => this.doubleDown(false), decision: Decision.DoubleDown },
