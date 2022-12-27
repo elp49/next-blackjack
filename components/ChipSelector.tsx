@@ -166,10 +166,21 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
         ))}
       </div>
       <div className="tenth row outline">
-        <Button onClick={() => setChips([])} variant="contained" style={{ margin: '1em' }}>
+        <Button
+          onClick={() => setChips([])}
+          variant="contained"
+          className={styles.button}
+          style={{ margin: '1em', color: 'white' }}
+        >
           Clear
         </Button>
-        <Button onClick={() => deal(wager)} disabled={wager === 0} variant="contained" style={{ margin: '1em' }}>
+        <Button
+          onClick={() => deal(wager)}
+          disabled={wager === 0}
+          variant="contained"
+          className={`${styles.button} ${wager === 0 && styles.disabled}`}
+          style={{ margin: '1em', color: 'white' }}
+        >
           Deal
         </Button>
       </div>

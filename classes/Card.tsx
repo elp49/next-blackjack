@@ -123,6 +123,17 @@ class Card extends React.Component {
     if (value > 10) value = 10;
     return value;
   }
+  public get CountValue(): number {
+    let count;
+    // low card
+    if (this.Value >= 2 && this.Value <= 6) count = 1;
+    // neutral card
+    else if (this.Value >= 7 && this.Value <= 9) count = 0;
+    // high card
+    else count = -1;
+
+    return count;
+  }
   public get IsFaceCard(): boolean {
     return FACE_CARDS.includes(this.Rank);
   }

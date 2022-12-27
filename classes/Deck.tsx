@@ -16,8 +16,12 @@ class Deck {
 
   constructor(nDecks: number) {
     console.log(' ==== NEW DECK ====');
+
+    // this.cards = this.allAces(nDecks);
     // this.cards = this.allTens(nDecks);
     // this.cards = this.tensAndAces(nDecks);
+    // this.cards = this.createDefaultDeck(nDecks);
+
     this.cards = this.createDefaultDeck(nDecks);
     this.shuffle();
 
@@ -50,6 +54,20 @@ class Deck {
       for (let index = 0; index < DECK_SIZE; index++) {
         const card = new Card({ index, deckIndex, isFaceUp });
         if (card.Value === 10) deck.push(card);
+      }
+
+    return deck;
+  }
+
+  // for testing ui
+  public allAces(nDecks: number): Card[] {
+    console.log(`Creating ${nDecks} decks...`);
+    const deck: Card[] = [];
+    const isFaceUp = false;
+    for (let deckIndex = 0; deckIndex < nDecks; deckIndex++)
+      for (let index = 0; index < DECK_SIZE; index++) {
+        const card = new Card({ index, deckIndex, isFaceUp });
+        if (card.IsAce) deck.push(card);
       }
 
     return deck;

@@ -145,7 +145,8 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
               style={{
                 position: 'absolute',
                 top: '50%',
-                minWidth: 'calc(5em + 6px)',
+                // minWidth: 'calc(5em + 6px)',
+                minWidth: '50%',
                 backgroundColor: 'black',
                 opacity: 0.9,
                 padding: '0.2em',

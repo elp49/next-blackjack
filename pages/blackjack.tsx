@@ -25,6 +25,7 @@ export interface IBlackjackState {
   badDecision: string;
   isQuestioningBadDecision: boolean;
   cancelTimeout: boolean;
+  count: number;
 }
 
 class Blackjack extends React.Component<{}, IBlackjackState> {
@@ -46,6 +47,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       badDecision: '',
       isQuestioningBadDecision: false,
       cancelTimeout: false,
+      count: 0,
     };
 
     this.results = new Results();
@@ -84,37 +86,45 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     console.log();
     console.log('Dealing');
 
+    this.wager = wager;
+    const currentHand = new PlayerHand({ wager });
+    const dealer = new Hand({ isDealer: true });
+    let count = this.state.count;
+
     // Get new deck
     if (!this.deck || this.deck.RemainingCount < DECK_SIZE) {
       this.deck = new Deck(NUM_DECKS);
+      count = 0;
 
       // Burn first card in deck
       console.log('Burning card');
       this.deck.draw(false);
     }
 
-    this.wager = wager;
-    const currentHand = new PlayerHand({ wager });
-    const dealer = new Hand({ isDealer: true });
-
     // Deal cards
-    currentHand.addCard(this.deck.draw());
+    const card = this.deck.draw();
+    currentHand.addCard(card);
+    count += card.CountValue;
 
     this.activeHands = [currentHand];
-    this.setState({ isProcessing: true, cancelTimeout: false, currentHand, dealer }, () => {
+    this.setState({ isProcessing: true, cancelTimeout: false, currentHand, dealer, count }, () => {
       setTimeout(() => {
         if (!this.state.cancelTimeout) {
           const dealer = this.state.dealer.clone();
-          dealer.addCard(this.deck.draw());
+          const card = this.deck.draw();
+          dealer.addCard(card);
+          count += card.CountValue;
 
-          this.setState({ dealer }, () => {
+          this.setState({ dealer, count }, () => {
             setTimeout(() => {
               if (!this.state.cancelTimeout) {
                 const currentHand = this.state.currentHand.clone();
-                currentHand.addCard(this.deck.draw());
+                const card = this.deck.draw();
+                currentHand.addCard(card);
                 this.activeHands = [currentHand];
+                count += card.CountValue;
 
-                this.setState({ currentHand }, () => {
+                this.setState({ currentHand, count }, () => {
                   setTimeout(() => {
                     if (!this.state.cancelTimeout) {
                       const dealer = this.state.dealer.clone();
@@ -254,7 +264,9 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
           this.activeHands.forEach((x) => console.log(x.toString()));
 
           setTimeout(() => {
-            currentHand.cards[currentHand.cards.length - 1].flip();
+            const iCard = currentHand.cards.length - 1;
+            currentHand.cards[iCard].flip();
+            const count = this.state.count + currentHand.cards[iCard].CountValue;
 
             // Auto-stand
             if (currentHand.IsTwentyOne) {
@@ -273,6 +285,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             this.setState({
               isProcessing: false,
               currentHand,
+              count,
             });
           }, DEFAULT_TIMEOUT);
         }
@@ -302,12 +315,14 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     console.log();
     console.log('doubleDown');
     const currentHand = this.state.currentHand.clone();
-    currentHand.doubleDown(this.deck.draw());
+    const card = this.deck.draw();
+    currentHand.doubleDown(card);
+    const count = this.state.count + card.CountValue;
 
     const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
     this.activeHands[iCurrentHand] = currentHand;
 
-    this.setState({ currentHand });
+    this.setState({ currentHand, count });
   }
 
   split() {
@@ -441,7 +456,9 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
           console.log();
           console.log('AUTO-HIT SPLIT HAND');
           const currentHand = this.state.currentHand.clone();
-          currentHand.addCard(this.deck.draw());
+          const card = this.deck.draw();
+          currentHand.addCard(card);
+          const count = this.state.count + card.CountValue;
 
           // Auto-stand 21 or split aces but only if not dealt another ace
           if ((currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) || currentHand.IsTwentyOne) {
@@ -452,7 +469,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
           const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
           this.activeHands[iCurrentHand] = currentHand;
 
-          this.setState({ currentHand });
+          this.setState({ currentHand, count });
         }
 
         // Still some active hands remaining
@@ -502,13 +519,15 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             console.log('flipping dealer second card');
             const dealer = this.state.dealer.clone();
             dealer.cards[1].flip();
-            this.setState({ dealer });
+            const count = this.state.count + dealer.cards[1].CountValue;
+            this.setState({ dealer, count });
           }
 
           // Dealer plays
           else if (!this.state.dealer.didStand && this.activeHands.some((x) => !x.IsBlackjack && !x.IsBust)) {
             console.log('Dealer plays');
             const dealer = this.state.dealer.clone();
+            let count = this.state.count;
             // both cards flipped, play
             console.log(`dealer value best ${dealer.BestValue}`);
             console.log(`player value best ${this.state.currentHand.BestValue}`);
@@ -524,6 +543,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               const card = this.deck.draw();
               console.log(`Dealer dealt card ${card.toString()}`);
               dealer.addCard(card);
+              count += card.CountValue;
             } else {
               console.log('Dealer stands');
               dealer.stand();
@@ -531,7 +551,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
 
             // this.setState({ dealer });
             setTimeout(() => {
-              this.setState({ dealer });
+              this.setState({ dealer, count });
             }, DEFAULT_TIMEOUT);
           }
 
@@ -606,132 +626,130 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
   render() {
     return (
       <div className={`column container outline ${styles.table}`}>
-        <div id="dealer" className="quarter column outline">
+        <div id="dealer" className="twenty column outline">
           {this.state.dealer && this.state.dealer.render()}
           {/* {this.state.dealer && this.state.dealer.WasDealtCards && this.state.dealer.cards.map((c) => c.render())} */}
         </div>
 
-        <div
-          id="controls"
-          className="column outline"
-          style={{
-            height: '75%',
-            width: '100%',
-          }}
-        >
-          {this.state.currentHand ? (
-            <>
-              <div className="half column outline">
-                <Prompt
-                  promptText="INSURANCE?"
-                  respond={this.insure}
-                  isPromptActive={this.state.currentlyOfferingInsurance}
-                />
-                <Prompt
-                  promptText={this.state.badDecision}
-                  respond={this.badDecisionResponse}
-                  isPromptActive={this.state.isQuestioningBadDecision}
-                />
-                {this.activeHands.length > 0 && (
-                  <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
-                    {this.activeHands
-                      .filter((x) => x !== this.state.currentHand)
-                      .map((x, i) => (
-                        <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                          {/* <p>Hand {this.activeHands.indexOf(x) + 1}</p>
+        {this.state.currentHand ? (
+          <>
+            <div id="center" className="forty column outline">
+              <Prompt
+                promptText="INSURANCE?"
+                respond={this.insure}
+                isPromptActive={this.state.currentlyOfferingInsurance}
+              />
+              <Prompt
+                promptText={this.state.badDecision}
+                respond={this.badDecisionResponse}
+                isPromptActive={this.state.isQuestioningBadDecision}
+              />
+              {this.activeHands.length > 0 && (
+                <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
+                  {this.activeHands
+                    .filter((x) => x !== this.state.currentHand)
+                    .map((x, i) => (
+                      <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
+                        {/* <p>Hand {this.activeHands.indexOf(x) + 1}</p>
                       <h3>{x.result}</h3> */}
-                          {x.render()}
-                        </div>
-                      ))}
-                  </div>
+                        {x.render()}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            <div
+              id="player"
+              className="twenty row outline"
+              style={{ justifyContent: 'space-around', alignItems: 'center' }}
+            >
+              <div className="quarter column outline">
+                <Panel
+                  info={['Count:', `${this.state.count}`]}
+                  style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
+                />
+              </div>
+              <div id="handStatus" className="half column outline">
+                {this.state.currentHand && this.state.currentHand.WasDealtCards && (
+                  <>
+                    {this.state.currentHand.render()}
+                    <Panel
+                      info={[`$${this.state.currentHand.wager}`]}
+                      style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
+                    />
+                  </>
                 )}
               </div>
-
-              <div
-                id="player"
-                className="forty row outline"
-                style={{ justifyContent: 'space-around', alignItems: 'flex-end' }}
-              >
-                <div id="handStatus" className="column outline" style={{ marginBottom: '1em' }}>
-                  {this.state.currentHand && this.state.currentHand.WasDealtCards && (
-                    <>
-                      {this.state.currentHand.render()}
-                      <Panel
-                        info={[`$${this.state.currentHand.wager}`]}
-                        style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
-                      />
-                    </>
-                  )}
-                </div>
-              </div>
-              <div id="bottomPane" className="twenty column outline">
-                <div id="choices" className="half row outline" style={{ justifyContent: 'center' }}>
-                  {this.state.currentHand.result === HandResult.InProgress
-                    ? [
-                        { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
-                        { text: 'Split', handler: this.split, decision: Decision.Split },
-                        { text: 'Stand', handler: this.stand, decision: Decision.Stand },
-                        { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
-                      ].map(({ text, handler, decision }) => (
+              <div className="quarter column outline"></div>
+            </div>
+            <div id="bottomPane" className="twenty column outline">
+              <div id="choices" className="half row outline" style={{ justifyContent: 'center' }}>
+                {this.state.currentHand.result === HandResult.InProgress
+                  ? [
+                      { text: 'Double Down', handler: this.doubleDown, decision: Decision.DoubleDown },
+                      { text: 'Split', handler: this.split, decision: Decision.Split },
+                      { text: 'Stand', handler: this.stand, decision: Decision.Stand },
+                      { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
+                    ].map(({ text, handler, decision }) => {
+                      const isDisabled =
+                        // true ||
+                        this.state.isProcessing ||
+                        this.state.currentlyOfferingInsurance ||
+                        !this.state.currentHand.isDecisionValid(decision);
+                      return (
                         <Button
                           key={text}
                           onClick={handler}
-                          disabled={
-                            this.state.isProcessing ||
-                            this.state.currentlyOfferingInsurance ||
-                            !this.state.currentHand.isDecisionValid(decision)
-                          }
+                          disabled={isDisabled}
+                          className={`${styles.button} ${isDisabled && styles.disabled}`}
                           style={{
-                            minWidth: '1em',
-                            backgroundColor: 'maroon',
                             color: 'white',
                             margin: '1em',
                           }}
                         >
                           {text.toUpperCase()}
                         </Button>
-                      ))
-                    : [
-                        {
-                          text: 'Change Bet',
-                          handler: () => this.setState({ dealer: null, currentHand: null }),
-                        },
-                        { text: 'Rebet & Deal', handler: this.rebetAndDeal },
-                      ].map(({ text, handler }) => (
-                        <Button
-                          key={text}
-                          onClick={handler}
-                          variant="contained"
-                          style={{
-                            height: '4em',
-                            minWidth: '1em',
-                            width: '12em',
-                            fontFamily: 'serif',
-                            backgroundColor: 'maroon',
-                            padding: 0,
-                            margin: '1em',
-                          }}
-                        >
-                          {text}
-                        </Button>
-                      ))}
-                </div>
-                <div className="half row outline" style={{ justifyContent: 'center' }}>
-                  {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
-                    Results
-                  </Button> */}
-                  <Panel info={['Total', `$${this.results.TotalNetWinnings}`]} style={{ margin: '1em' }} />
-                  <Panel info={['Current', `$${this.results.CurrentNetWinnings}`]} style={{ margin: '1em' }} />
-                  {/* <Button onClick={this.redeal} variant="contained" size="small" style={{ margin: '1em' }}>
-                    Redeal
-                  </Button> */}
-                </div>
+                      );
+                    })
+                  : [
+                      {
+                        text: 'Change Bet',
+                        handler: () => this.setState({ dealer: null, currentHand: null }),
+                      },
+                      { text: 'Rebet & Deal', handler: this.rebetAndDeal },
+                    ].map(({ text, handler }) => (
+                      <Button
+                        key={text}
+                        onClick={handler}
+                        variant="contained"
+                        className={styles.button}
+                        style={{
+                          height: '4em',
+                          width: '10em',
+                          padding: 0,
+                          margin: '1em',
+                        }}
+                      >
+                        {text}
+                      </Button>
+                    ))}
               </div>
-            </>
-          ) : (
-            <ChipSelector deal={this.deal} />
-          )}
-        </div>
+              <div className="half row outline" style={{ justifyContent: 'center' }}>
+                {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
+                  Results
+                </Button> */}
+                <Panel info={['Total:', `$${this.results.TotalNetWinnings}`]} style={{ margin: '1em' }} />
+                <Panel info={['Current:', `$${this.results.CurrentNetWinnings}`]} style={{ margin: '1em' }} />
+                {/* <Button onClick={this.redeal} variant="contained" size="small" style={{ margin: '1em' }}>
+                  Redeal
+                </Button> */}
+              </div>
+            </div>
+          </>
+        ) : (
+          <ChipSelector deal={this.deal} />
+        )}
       </div>
     );
   }
