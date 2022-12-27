@@ -186,9 +186,10 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     if (this.state.dealer.IsBlackjack) {
       console.log('dealer has blackjack');
       const dealer = this.state.dealer.clone();
-      dealer.cards[1].flip();
+      dealer.cards[0].flip();
       dealer.stand();
       currentHand.stand();
+      const count = this.state.count + dealer.cards[0].CountValue;
 
       this.activeHands = [currentHand];
       this.setState({
@@ -196,6 +197,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
         currentlyOfferingInsurance: false,
         dealer,
         currentHand,
+        count,
       });
     } else {
       console.log(
