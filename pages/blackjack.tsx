@@ -697,7 +697,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             >
               <div className="quarter column outline">
                 <Panel
-                  info={['Count:', `${this.state.count > 0 && '+'}${this.state.count}`]}
+                  info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
                   style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
                 />
               </div>
