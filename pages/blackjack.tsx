@@ -133,7 +133,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       count += card.CountValue;
 
                       this.setState({ dealer, count }, () => {
-                        const currentlyOfferingInsurance = this.state.dealer.cards[0].IsAce;
+                        const currentlyOfferingInsurance = this.state.dealer.cards[1].IsAce;
 
                         this.setState(
                           {
