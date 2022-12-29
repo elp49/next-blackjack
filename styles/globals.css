@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+html {
+  background-image: url('/images/table-3.jpg');
+}
+
 html,
 body {
   margin: 0;
@@ -16,10 +20,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   scroll-behavior: smooth;
-}
-
-body {
-  background-image: url('/images/table-3.jpg');
 }
 
 /* h1 {
