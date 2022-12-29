@@ -1,11 +1,7 @@
-import { getCookie, hasCookie, setCookie } from 'cookies-next';
 import type { AppProps } from 'next/app';
-import { useEffect, useState } from 'react';
-import Layout from '../components/Layout/Layout';
-import Settings from '../components/Layout/Settings';
 import '../styles/globals.css';
 
-const COOKIE_OFFER_INSURANCE = 'offerInsurance';
+/* const COOKIE_OFFER_INSURANCE = 'offerInsurance';
 const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
 const COOKIE_SHOW_COUNT = 'showCount';
 
@@ -14,10 +10,10 @@ export type AppSettings = {
   offerInsurance: boolean;
   dealerHitSoft17: boolean;
   showRunningCount: boolean;
-};
+}; */
 
 const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
-  const [didBootstrapCookies, setDidBootstrapCookies] = useState<boolean>(false);
+  /* const [didBootstrapCookies, setDidBootstrapCookies] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   // Cookies
@@ -53,26 +49,27 @@ const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
 
       setDidBootstrapCookies(true);
     }
-  }, [didBootstrapCookies]);
+  }, [didBootstrapCookies]); */
 
-  return (
-    <Layout settings={[isSettingsOpen, setIsSettingsOpen]}>
-      {isSettingsOpen && (
-        <Settings
-          configs={[
-            { title: 'Offer Insurance', setting: [offerInsurance, setOfferInsurance] },
-            { title: 'Dealer Hits Soft 17', setting: [dealerHitSoft17, setDealerHitSoft17] },
-            { title: 'Show Running Count', setting: [showRunningCount, setShowRunningCount] },
-          ]}
-          onClose={closeSettings}
-        />
-      )}
-      <Component
-        {...pageProps}
-        appSettings={{ disabled: isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }}
+  return <Component {...pageProps} />;
+  {
+    /* <Layout settings={[isSettingsOpen, setIsSettingsOpen]}>
+    {isSettingsOpen && (
+      <Settings
+        configs={[
+          { title: 'Offer Insurance', setting: [offerInsurance, setOfferInsurance] },
+          { title: 'Dealer Hits Soft 17', setting: [dealerHitSoft17, setDealerHitSoft17] },
+          { title: 'Show Running Count', setting: [showRunningCount, setShowRunningCount] },
+        ]}
+        onClose={closeSettings}
       />
-    </Layout>
-  );
+    )}
+    <Component
+      {...pageProps}
+      appSettings={{ disabled: isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }}
+    />
+  </Layout> */
+  }
 };
 
 export default BlackjackWebApp;

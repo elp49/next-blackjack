@@ -1,16 +1,20 @@
+import { getCookie, hasCookie } from 'cookies-next';
 import React from 'react';
 import Deck from '../classes/Deck';
 import Hand, { HandResult } from '../classes/Hand';
 import PlayerHand, { Decision } from '../classes/PlayerHand';
 import Results from '../classes/Results';
 import ChipSelector from '../components/ChipSelector';
+import Layout from '../components/Layout/Layout';
+import Settings from '../components/Layout/Settings';
 import Panel from '../components/Panel';
 import Prompt from '../components/Prompt';
 import SexyButton from '../components/SexyButton';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWELVE, TWENTY_ONE } from '../utils/constants';
 import { isArrayEqual } from '../utils/utils';
-import { AppSettings } from './_app';
+
+// import { AppSettings } from './_app';
 
 const NUM_DECKS = 6;
 // const HIT_SOFT_SEVENTEEN = true;
@@ -18,16 +22,26 @@ const NUM_DECKS = 6;
 // const DEFAULT_TIMEOUT = 100;
 const DEFAULT_TIMEOUT = 500;
 
+const COOKIE_OFFER_INSURANCE = 'offerInsurance';
+const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
+const COOKIE_SHOW_COUNT = 'showCount';
+
 export interface IBlackjackProps {
-  appSettings: AppSettings;
+  // appSettings: AppSettings;
 }
 
 export interface IBlackjackState {
+  isSettingsOpen: boolean;
+  offerInsurance: boolean;
+  dealerHitSoft17: boolean;
+  showRunningCount: boolean;
+
   dealer: Hand;
   currentHand: PlayerHand;
   validDecisions: Decision[];
   currentlyOfferingInsurance: boolean;
   isProcessing: boolean;
+  isDealerPlaying: boolean;
   badDecision: string;
   isQuestioningBadDecisionToHit: boolean;
   isQuestioningBadDecisionToDouble: boolean;
@@ -46,11 +60,17 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     super(props);
 
     this.state = {
+      isSettingsOpen: false,
+      offerInsurance: true,
+      dealerHitSoft17: false,
+      showRunningCount: false,
+
       dealer: null,
       currentHand: null,
       validDecisions: [Decision.PlaceBet],
       currentlyOfferingInsurance: false,
       isProcessing: false,
+      isDealerPlaying: false,
       badDecision: '',
       isQuestioningBadDecisionToHit: false,
       isQuestioningBadDecisionToDouble: false,
@@ -142,7 +162,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
 
                       this.setState({ dealer, count }, () => {
                         const currentlyOfferingInsurance =
-                          this.state.dealer.cards[1].IsAce && this.props.appSettings.offerInsurance;
+                          this.state.dealer.cards[1].IsAce && this.state.offerInsurance;
 
                         // Check if player has blackjack
                         console.log('checking if player has blackjack');
@@ -453,6 +473,30 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     this.setState({ currentHand, count });
   }
 
+  componentDidMount(): void {
+    // Bootstrap cookies
+    if (hasCookie(COOKIE_OFFER_INSURANCE)) {
+      const offerInsurance = getCookie(COOKIE_OFFER_INSURANCE) as boolean;
+      this.setState({
+        offerInsurance,
+      });
+    }
+
+    if (hasCookie(COOKIE_SOFT_SEVENTEEN)) {
+      const dealerHitSoft17 = getCookie(COOKIE_SOFT_SEVENTEEN) as boolean;
+      this.setState({
+        dealerHitSoft17,
+      });
+    }
+
+    if (hasCookie(COOKIE_SHOW_COUNT)) {
+      const showRunningCount = getCookie(COOKIE_SHOW_COUNT) as boolean;
+      this.setState({
+        showRunningCount,
+      });
+    }
+  }
+
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IBlackjackState>, snapshot?: any): void {
     console.log();
     console.log('|=============== BEGIN componentDidUpdate BEGIN ===============|');
@@ -503,28 +547,40 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
 
             // Dealer plays
             else if (!this.state.dealer.didStand && this.activeHands.some((x) => !x.IsBlackjack && !x.IsBust)) {
-              console.log('Dealer plays');
-              const dealer = this.state.dealer.clone();
-              let count = this.state.count;
-              const dealerWillHit =
-                (dealer.ValueHard < SEVENTEEN && (dealer.ValueSoft < SEVENTEEN || dealer.ValueSoft > TWENTY_ONE)) || // dealer under 17 or
-                (this.props.appSettings.dealerHitSoft17 && // dealer hit soft 17 and
-                  dealer.HasAce &&
-                  dealer.ValueSoft === SEVENTEEN &&
-                  this.activeHands.some((x) => x.BestValue >= SEVENTEEN)); // some hands with 17 or more
-              if (dealerWillHit) {
-                const card = this.deck.draw();
-                console.log(`Dealer dealt card ${card.toString()}`);
-                dealer.addCard(card);
-                count += card.CountValue;
-              } else {
-                console.log('Dealer stands');
-                dealer.stand();
-              }
+              if (!this.state.isDealerPlaying) {
+                console.log('Dealer plays');
+                const dealer = this.state.dealer.clone();
+                let count = this.state.count;
+                const dealerWillHit =
+                  (dealer.ValueHard < SEVENTEEN && (dealer.ValueSoft < SEVENTEEN || dealer.ValueSoft > TWENTY_ONE)) || // dealer under 17 or
+                  (this.state.dealerHitSoft17 && // dealer hit soft 17 and
+                    dealer.HasAce &&
+                    dealer.ValueSoft === SEVENTEEN &&
+                    this.activeHands.some((x) => x.BestValue >= SEVENTEEN)); // some hands with 17 or more
+                if (dealerWillHit) {
+                  const card = this.deck.draw();
+                  console.log(`Dealer dealt card ${card.toString()}`);
+                  dealer.addCard(card);
+                  console.log(
+                    `\tdealer hand:\t${dealer.toString()} ${dealer.IsBlackjack ? 'BLACKJACK' : dealer.ValueString}`
+                  );
+                  count += card.CountValue;
+                } else {
+                  console.log('Dealer stands');
+                  dealer.stand();
+                }
 
-              setTimeout(() => {
-                this.setState({ dealer, count });
-              }, DEFAULT_TIMEOUT);
+                this.setState(
+                  {
+                    isDealerPlaying: true, // prevent dealer from hitting again before timeout ends
+                  },
+                  () => {
+                    setTimeout(() => {
+                      this.setState({ dealer, count, isDealerPlaying: false });
+                    }, DEFAULT_TIMEOUT);
+                  }
+                );
+              }
             }
 
             // Calculate results
@@ -575,133 +631,154 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
 
   render() {
     return (
-      <div className={`column container outline ${styles.table}`}>
-        <div id="dealer" className="twenty column outline">
-          {this.state.dealer && this.state.dealer.render()}
-        </div>
+      <Layout openSettings={() => this.setState({ isSettingsOpen: true })} disabled={this.state.isSettingsOpen}>
+        {this.state.isSettingsOpen && (
+          <Settings
+            configs={[
+              {
+                title: 'Offer Insurance',
+                setting: [this.state.offerInsurance, (offerInsurance) => this.setState({ offerInsurance })],
+              },
+              {
+                title: 'Dealer Hits Soft 17',
+                setting: [this.state.dealerHitSoft17, (dealerHitSoft17) => this.setState({ dealerHitSoft17 })],
+              },
+              {
+                title: 'Show Running Count',
+                setting: [this.state.showRunningCount, (showRunningCount) => this.setState({ showRunningCount })],
+              },
+            ]}
+            onClose={() => this.setState({ isSettingsOpen: false })}
+          />
+        )}
+        <div className={`column container outline ${styles.table}`}>
+          <div id="dealer" className="twenty column outline">
+            {this.state.dealer && this.state.dealer.render()}
+          </div>
 
-        {this.state.currentHand ? (
-          <>
-            <div id="center" className="forty column outline">
-              <Prompt
-                promptText="INSURANCE?"
-                respond={this.insure}
-                isPromptActive={this.state.currentlyOfferingInsurance}
-              />
-              <Prompt
-                promptText={this.state.badDecision}
-                respond={(response: boolean) => this.badDecisionResponse(response, () => this.hit(true))}
-                isPromptActive={this.state.isQuestioningBadDecisionToHit}
-              />
-              <Prompt
-                promptText={this.state.badDecision}
-                respond={(response: boolean) => this.badDecisionResponse(response, () => this.doubleDown(true))}
-                isPromptActive={this.state.isQuestioningBadDecisionToDouble}
-              />
-              <Prompt
-                promptText={this.state.badDecision}
-                respond={(response: boolean) => this.badDecisionResponse(response, () => this.stand(true))}
-                isPromptActive={this.state.isQuestioningBadDecisionToStand}
-              />
-              {this.activeHands.length > 0 && (
-                <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
-                  {this.activeHands
-                    .filter((x) => x !== this.state.currentHand)
-                    .map((x, i) => (
-                      <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                        {x.render()}
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-
-            <div
-              id="playerHand"
-              className="twenty row outline"
-              style={{ justifyContent: 'space-around', alignItems: 'center' }}
-            >
-              <div className="quarter column outline">
-                {this.props.appSettings.showRunningCount && (
-                  <Panel
-                    info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
-                    style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
-                  />
+          {this.state.currentHand ? (
+            <>
+              <div id="center" className="forty column outline">
+                <Prompt
+                  promptText="INSURANCE?"
+                  respond={this.insure}
+                  isPromptActive={this.state.currentlyOfferingInsurance}
+                />
+                <Prompt
+                  promptText={this.state.badDecision}
+                  respond={(response: boolean) => this.badDecisionResponse(response, () => this.hit(true))}
+                  isPromptActive={this.state.isQuestioningBadDecisionToHit}
+                />
+                <Prompt
+                  promptText={this.state.badDecision}
+                  respond={(response: boolean) => this.badDecisionResponse(response, () => this.doubleDown(true))}
+                  isPromptActive={this.state.isQuestioningBadDecisionToDouble}
+                />
+                <Prompt
+                  promptText={this.state.badDecision}
+                  respond={(response: boolean) => this.badDecisionResponse(response, () => this.stand(true))}
+                  isPromptActive={this.state.isQuestioningBadDecisionToStand}
+                />
+                {this.activeHands.length > 0 && (
+                  <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
+                    {this.activeHands
+                      .filter((x) => x !== this.state.currentHand)
+                      .map((x, i) => (
+                        <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
+                          {x.render()}
+                        </div>
+                      ))}
+                  </div>
                 )}
               </div>
-              <div className="half column outline">
-                {this.state.currentHand && this.state.currentHand.WasDealtCards && (
-                  <>
-                    {this.state.currentHand.render()}
+
+              <div
+                id="playerHand"
+                className="twenty row outline"
+                style={{ justifyContent: 'space-around', alignItems: 'center' }}
+              >
+                <div className="quarter column outline">
+                  {this.state.showRunningCount && (
                     <Panel
-                      info={[`$${this.state.currentHand.wager}`]}
+                      info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
                       style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
                     />
-                  </>
-                )}
+                  )}
+                </div>
+                <div className="half column outline">
+                  {this.state.currentHand && this.state.currentHand.WasDealtCards && (
+                    <>
+                      {this.state.currentHand.render()}
+                      <Panel
+                        info={[`$${this.state.currentHand.wager}`]}
+                        style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
+                      />
+                    </>
+                  )}
+                </div>
+                <div className="quarter column outline"></div>
               </div>
-              <div className="quarter column outline"></div>
-            </div>
-            <div id="bottomPane" className="twenty column outline">
-              <div
-                id="choices"
-                className="half row outline"
-                style={{ justifyContent: 'center', alignItems: 'flex-end' }}
-              >
-                {this.state.currentHand.result === HandResult.InProgress
-                  ? [
-                      { text: 'Double Down', handler: () => this.doubleDown(false), decision: Decision.DoubleDown },
-                      { text: 'Split', handler: this.split, decision: Decision.Split },
-                      { text: 'Stand', handler: () => this.stand(false), decision: Decision.Stand },
-                      { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
-                    ].map(({ text, handler, decision }) => {
-                      const isDisabled =
-                        this.state.isProcessing ||
-                        this.state.currentlyOfferingInsurance ||
-                        !this.state.currentHand.isDecisionValid(decision) ||
-                        this.props.appSettings.disabled;
-                      return <SexyButton key={text} text={text} onClick={handler} disabled={isDisabled} />;
-                    })
-                  : [
-                      {
-                        text: 'Change Bet',
-                        handler: () => this.setState({ dealer: null, currentHand: null }),
-                      },
-                      { text: 'Rebet & Deal', handler: this.rebetAndDeal },
-                    ].map(({ text, handler }) => {
-                      const isDisabled = this.props.appSettings.disabled;
-                      return (
-                        <SexyButton
-                          key={text}
-                          text={text}
-                          onClick={handler}
-                          disabled={isDisabled}
-                          /* style={{
+              <div id="bottomPane" className="twenty column outline">
+                <div
+                  id="choices"
+                  className="half row outline"
+                  style={{ justifyContent: 'center', alignItems: 'flex-end' }}
+                >
+                  {this.state.currentHand.result === HandResult.InProgress
+                    ? [
+                        { text: 'Double Down', handler: () => this.doubleDown(false), decision: Decision.DoubleDown },
+                        { text: 'Split', handler: this.split, decision: Decision.Split },
+                        { text: 'Stand', handler: () => this.stand(false), decision: Decision.Stand },
+                        { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
+                      ].map(({ text, handler, decision }) => {
+                        const isDisabled =
+                          this.state.isProcessing ||
+                          this.state.currentlyOfferingInsurance ||
+                          !this.state.currentHand.isDecisionValid(decision) ||
+                          this.state.isSettingsOpen;
+                        return <SexyButton key={text} text={text} onClick={handler} disabled={isDisabled} />;
+                      })
+                    : [
+                        {
+                          text: 'Change Bet',
+                          handler: () => this.setState({ dealer: null, currentHand: null }),
+                        },
+                        { text: 'Rebet & Deal', handler: this.rebetAndDeal },
+                      ].map(({ text, handler }) => {
+                        const isDisabled = this.state.isSettingsOpen;
+                        return (
+                          <SexyButton
+                            key={text}
+                            text={text}
+                            onClick={handler}
+                            disabled={isDisabled}
+                            /* style={{
                             height: '4em',
                             width: '10em',
                             padding: 0,
                             margin: '1em',
                           }} */
-                        />
-                      );
-                    })}
-              </div>
-              <div className="half row outline" style={{ justifyContent: 'center' }}>
-                {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
+                          />
+                        );
+                      })}
+                </div>
+                <div className="half row outline" style={{ justifyContent: 'center' }}>
+                  {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
                   Results
                 </Button> */}
-                <Panel info={['Total:', `$${this.results.TotalNetWinnings}`]} style={{ margin: '1em' }} />
-                <Panel info={['Current:', `$${this.results.CurrentNetWinnings}`]} style={{ margin: '1em' }} />
-                {/* <Button onClick={this.redeal} variant="contained" size="small" style={{ margin: '1em' }}>
+                  <Panel info={['Total:', `$${this.results.TotalNetWinnings}`]} style={{ margin: '1em' }} />
+                  <Panel info={['Current:', `$${this.results.CurrentNetWinnings}`]} style={{ margin: '1em' }} />
+                  {/* <Button onClick={this.redeal} variant="contained" size="small" style={{ margin: '1em' }}>
                   Redeal
                 </Button> */}
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <ChipSelector deal={this.deal} disabled={this.props.appSettings.disabled} />
-        )}
-      </div>
+            </>
+          ) : (
+            <ChipSelector deal={this.deal} disabled={this.state.isSettingsOpen} />
+          )}
+        </div>
+      </Layout>
     );
   }
 }

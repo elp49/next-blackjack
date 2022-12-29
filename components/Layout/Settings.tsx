@@ -1,9 +1,9 @@
 import { Button, Switch } from '@mui/material';
-import { Dispatch, SetStateAction } from 'react';
 
 type Configuration = {
   title: string;
-  setting: [boolean, Dispatch<SetStateAction<boolean>>];
+  setting: [boolean, (value: boolean) => void];
+  // setting: [boolean, Dispatch<SetStateAction<boolean>>];
 };
 
 type SettingsProps = {
