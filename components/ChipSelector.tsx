@@ -1,30 +1,12 @@
 import { useEffect, useState } from 'react';
-import styles from '../styles/table.module.css';
 import Panel from './Panel';
 import PlayerChips from './PlayerChips';
 import SexyButton from './SexyButton';
-
-const CHIPS: Chip[][] = [
-  [
-    { value: 1, color: 'white' },
-    { value: 5, color: 'red' },
-    { value: 25, color: 'green' },
-  ],
-  [
-    { value: 100, color: 'black' },
-    { value: 500, color: 'purple' },
-    { value: 1000, color: 'yellow' },
-  ],
-];
+import TableChips from './TableChips';
 
 export type Chip = {
   value: number;
   color: string;
-};
-type ChipProps = {
-  chip: Chip;
-  onChipSelected: (chip?: Chip) => void;
-  disabled: boolean;
 };
 type ChipSelectorProps = {
   deal: (number) => void;
@@ -49,23 +31,6 @@ export default function ChipSelector({ deal, disabled }: ChipSelectorProps): JSX
     setWager(newWager);
   }, [chips]);
 
-  function Chip({ chip, onChipSelected, disabled }: ChipProps): JSX.Element {
-    const { value, color } = chip;
-    return (
-      <button
-        onClick={() => onChipSelected(chip)}
-        disabled={disabled}
-        className={styles.chip}
-        style={{
-          backgroundImage: `url(/images/chip-${color}.png)`,
-          margin: '1em',
-        }}
-      >
-        <span>{value % 1000 === 0 ? `${value / 1000}K` : value}</span>
-      </button>
-    );
-  }
-
   return (
     <div className="whole column">
       <div
@@ -80,17 +45,7 @@ export default function ChipSelector({ deal, disabled }: ChipSelectorProps): JSX
       </div>
       <Panel info={['Wager', `$${wager}`]} />
       <div id="chips" className="third column" style={{ justifyContent: 'space-evenly', padding: '0 4em 0 4em' }}>
-        {CHIPS.map((row, i) => (
-          <div
-            key={`chipSelectorRow-${i}`}
-            className="half row outline"
-            style={{ fontSize: '1.3em', justifyContent: 'center' }}
-          >
-            {row.map((chip) => (
-              <Chip key={`chipSelector${chip.value}`} chip={chip} onChipSelected={addChip} disabled={disabled} />
-            ))}
-          </div>
-        ))}
+        <TableChips addChip={addChip} disabled={disabled} />
       </div>
       <div className="tenth row outline">
         <SexyButton text="Clear" onClick={() => setChips([])} disabled={disabled} />
