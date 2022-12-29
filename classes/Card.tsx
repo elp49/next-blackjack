@@ -186,11 +186,7 @@ class Card extends React.Component {
     const key = `deck-${this.deckIndex}-card-${this.index}`;
     const grandchildren = [...cards];
     const child = grandchildren && grandchildren.length > 0 ? grandchildren.shift() : null;
-    try {
-      /* console.log(`rending card`);
-      console.log(`child: ${child.Rank}`);
-      grandchildren.forEach((x) => console.log(`grandchild: ${x.Rank}`)); */
-    } catch (error) {}
+
     return (
       <div key={key} className={styles.card} style={{ color: this.Color, marginLeft: `${!isFirst && '1.5em'}` }}>
         {this.isFaceUp ? (

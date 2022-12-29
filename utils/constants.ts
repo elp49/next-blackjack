@@ -2,6 +2,7 @@ export const TWENTY_ONE = 21;
 export const TWENTY = 20;
 export const NINETEEN = 19;
 export const SEVENTEEN = 17;
+export const TWELVE = 12;
 export const ELEVEN = 11;
 export const TEN = 10;
 

@@ -1,8 +1,8 @@
-import { Button } from '@mui/material';
 import { CSSProperties, useEffect, useState } from 'react';
 import styles from '../styles/table.module.css';
 import { range } from '../utils/utils';
 import Panel from './Panel';
+import SexyButton from './SexyButton';
 
 const CHIPS: Chip[][] = [
   [
@@ -24,6 +24,7 @@ type Chip = {
 type ChipProps = {
   chip: Chip;
   onChipSelected: (chip?: Chip) => void;
+  isDisabled: boolean;
 };
 type PlayerChipsProps = {
   index: number;
@@ -33,9 +34,10 @@ type PlayerChipsProps = {
 };
 type ChipSelectorProps = {
   deal: (number) => void;
+  isSettingsOpen: boolean;
 };
 
-export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
+export default function ChipSelector({ deal, isSettingsOpen }: ChipSelectorProps): JSX.Element {
   const [chips, setChips] = useState<Chip[]>([]);
   const [wager, setWager] = useState<number>(0);
 
@@ -61,11 +63,12 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
     setWager(newWager);
   }, [chips]);
 
-  function Chip({ chip, onChipSelected }: ChipProps): JSX.Element {
+  function Chip({ chip, onChipSelected, isDisabled }: ChipProps): JSX.Element {
     const { value, color } = chip;
     return (
       <button
         onClick={() => onChipSelected(chip)}
+        disabled={isDisabled}
         className={styles.chip}
         style={{
           backgroundImage: `url(/images/chip-${color}.png)`,
@@ -111,7 +114,7 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
     };
 
     return isLast ? (
-      <button onClick={() => removeChip(iStack, index)} className={styles.chip} style={style}>
+      <button onClick={() => removeChip(iStack, index)} disabled={isSettingsOpen} className={styles.chip} style={style}>
         {children}
       </button>
     ) : (
@@ -120,7 +123,11 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
       </div>
     );
   }
+
   const nStacks = chips.length < 5 ? 1 : Math.ceil(chips.length / 5);
+  const isClearDisabled = isSettingsOpen;
+  const isDealDisabled = wager === 0 || isSettingsOpen;
+
   return (
     <div className="whole column">
       <div
@@ -160,29 +167,19 @@ export default function ChipSelector({ deal }: ChipSelectorProps): JSX.Element {
             style={{ fontSize: '1.3em', justifyContent: 'center' }}
           >
             {row.map((chip) => (
-              <Chip key={`chipSelector${chip.value}`} chip={chip} onChipSelected={addChip} />
+              <Chip
+                key={`chipSelector${chip.value}`}
+                chip={chip}
+                onChipSelected={addChip}
+                isDisabled={isSettingsOpen}
+              />
             ))}
           </div>
         ))}
       </div>
       <div className="tenth row outline">
-        <Button
-          onClick={() => setChips([])}
-          variant="contained"
-          className={styles.button}
-          style={{ margin: '1em', color: 'white' }}
-        >
-          Clear
-        </Button>
-        <Button
-          onClick={() => deal(wager)}
-          disabled={wager === 0}
-          variant="contained"
-          className={`${styles.button} ${wager === 0 && styles.disabled}`}
-          style={{ margin: '1em', color: 'white' }}
-        >
-          Deal
-        </Button>
+        <SexyButton text="Clear" onClick={() => setChips([])} disabled={isClearDisabled} />
+        <SexyButton text="Deal" onClick={() => deal(wager)} disabled={isDealDisabled} />
       </div>
     </div>
   );

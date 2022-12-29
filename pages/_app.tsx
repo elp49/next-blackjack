@@ -5,10 +5,13 @@ import Layout from '../components/Layout/Layout';
 import Settings from '../components/Layout/Settings';
 import '../styles/globals.css';
 
+const COOKIE_OFFER_INSURANCE = 'offerInsurance';
 const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
 const COOKIE_SHOW_COUNT = 'showCount';
 
 export type AppSettings = {
+  isSettingsOpen: boolean;
+  offerInsurance: boolean;
   dealerHitSoft17: boolean;
   showRunningCount: boolean;
 };
@@ -18,6 +21,7 @@ const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   // Cookies
+  const [offerInsurance, setOfferInsurance] = useState<boolean>(true);
   const [dealerHitSoft17, setDealerHitSoft17] = useState<boolean>(false);
   const [showRunningCount, setShowRunningCount] = useState<boolean>(false);
 
@@ -25,12 +29,18 @@ const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
     setIsSettingsOpen(false);
 
     // Update cookies.
+    setCookie(COOKIE_OFFER_INSURANCE, offerInsurance);
     setCookie(COOKIE_SOFT_SEVENTEEN, dealerHitSoft17);
     setCookie(COOKIE_SHOW_COUNT, showRunningCount);
   };
 
   useEffect(() => {
     if (!didBootstrapCookies) {
+      if (hasCookie(COOKIE_OFFER_INSURANCE)) {
+        const offer = getCookie(COOKIE_OFFER_INSURANCE) as boolean;
+        setOfferInsurance(offer);
+      }
+
       if (hasCookie(COOKIE_SOFT_SEVENTEEN)) {
         const hitSoft = getCookie(COOKIE_SOFT_SEVENTEEN) as boolean;
         setDealerHitSoft17(hitSoft);
@@ -50,13 +60,14 @@ const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
       {isSettingsOpen && (
         <Settings
           configs={[
+            { title: 'Offer Insurance', setting: [offerInsurance, setOfferInsurance] },
             { title: 'Dealer Hits Soft 17', setting: [dealerHitSoft17, setDealerHitSoft17] },
             { title: 'Show Running Count', setting: [showRunningCount, setShowRunningCount] },
           ]}
           onClose={closeSettings}
         />
       )}
-      <Component {...pageProps} appSettings={{ dealerHitSoft17, showRunningCount }} />
+      <Component {...pageProps} appSettings={{ isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }} />
     </Layout>
   );
 };

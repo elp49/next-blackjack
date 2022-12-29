@@ -1,4 +1,3 @@
-import { Button } from '@mui/material';
 import React from 'react';
 import Deck from '../classes/Deck';
 import Hand, { HandResult } from '../classes/Hand';
@@ -7,8 +6,9 @@ import Results from '../classes/Results';
 import ChipSelector from '../components/ChipSelector';
 import Panel from '../components/Panel';
 import Prompt from '../components/Prompt';
+import SexyButton from '../components/SexyButton';
 import styles from '../styles/table.module.css';
-import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWENTY_ONE } from '../utils/constants';
+import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWELVE, TWENTY_ONE } from '../utils/constants';
 import { isArrayEqual } from '../utils/utils';
 import { AppSettings } from './_app';
 
@@ -31,6 +31,7 @@ export interface IBlackjackState {
   badDecision: string;
   isQuestioningBadDecisionToHit: boolean;
   isQuestioningBadDecisionToDouble: boolean;
+  isQuestioningBadDecisionToStand: boolean;
   cancelTimeout: boolean;
   count: number;
 }
@@ -53,6 +54,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
       badDecision: '',
       isQuestioningBadDecisionToHit: false,
       isQuestioningBadDecisionToDouble: false,
+      isQuestioningBadDecisionToStand: false,
       cancelTimeout: false,
       count: 0,
     };
@@ -139,7 +141,8 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                       count += card.CountValue;
 
                       this.setState({ dealer, count }, () => {
-                        const currentlyOfferingInsurance = this.state.dealer.cards[1].IsAce;
+                        const currentlyOfferingInsurance =
+                          this.state.dealer.cards[1].IsAce && this.props.appSettings.offerInsurance;
 
                         // Check if player has blackjack
                         console.log('checking if player has blackjack');
@@ -162,7 +165,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                             currentlyOfferingInsurance,
                           },
                           () => {
-                            // Dealer not showing ace, but has blackjack
+                            // Dealer not showing ace or offer insurance setting is turned off, but has blackjack
                             if (!currentlyOfferingInsurance && this.state.dealer.IsBlackjack) {
                               this.insure(false);
                             }
@@ -190,7 +193,13 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     console.log('offering insurance');
 
     const currentHand = this.state.currentHand.clone();
-    if (accepted) currentHand.acceptInsurance();
+    if (accepted) {
+      currentHand.acceptInsurance();
+      this.activeHands = [currentHand];
+      this.setState({
+        currentHand,
+      });
+    }
 
     console.log('checking if dealer has blackjack');
     if (this.state.dealer.IsBlackjack) {
@@ -209,17 +218,6 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
         currentHand,
         count,
       });
-    } else {
-      console.log(
-        `dealer DOES NOT have blackjack - ${this.state.dealer.cards[0].Rank} ${this.state.dealer.cards[1].Rank}`
-      );
-
-      if (currentHand.didInsure) {
-        this.activeHands = [currentHand];
-        this.setState({
-          currentHand,
-        });
-      }
     }
 
     this.setState({
@@ -238,6 +236,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
         badDecision: '',
         isQuestioningBadDecisionToHit: false,
         isQuestioningBadDecisionToDouble: false,
+        isQuestioningBadDecisionToStand: false,
       },
       () => {
         if (makeBadDecision) {
@@ -260,7 +259,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     }
 
     if (!makeBadDecision && badDecision !== '') {
-      console.log(`BAD DECISION =================== ${badDecision}`);
+      console.log(`BAD DECISION ===== ${badDecision}`);
       this.setState({ isProcessing: true, badDecision, isQuestioningBadDecisionToHit: true });
     } else {
       const currentHand = this.state.currentHand.clone();
@@ -315,22 +314,34 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     }
   }
 
-  stand() {
+  stand(makeBadDecision: boolean) {
     console.log();
     console.log('stand');
-    const currentHand = this.state.currentHand.clone();
-    currentHand.stand();
 
-    console.log('current hand:');
-    console.log(currentHand.toString());
-    console.log('active hands:');
-    this.activeHands.forEach((x) => console.log(x.toString()));
+    // confirm bad decisions
+    let badDecision = '';
+    if (!this.state.currentHand.HasAce && this.state.currentHand.ValueHard < TWELVE) {
+      badDecision = `Stand on hard ${this.state.currentHand.ValueHard}?`;
+    }
 
-    const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
-    console.log(`iCurrentHand: ${iCurrentHand}`);
-    this.activeHands[iCurrentHand] = currentHand;
+    if (!makeBadDecision && badDecision !== '') {
+      console.log(`BAD DECISION ===== ${badDecision}`);
+      this.setState({ isProcessing: true, badDecision, isQuestioningBadDecisionToStand: true });
+    } else {
+      const currentHand = this.state.currentHand.clone();
+      currentHand.stand();
 
-    this.setState({ currentHand });
+      console.log('current hand:');
+      console.log(currentHand.toString());
+      console.log('active hands:');
+      this.activeHands.forEach((x) => console.log(x.toString()));
+
+      const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
+      console.log(`iCurrentHand: ${iCurrentHand}`);
+      this.activeHands[iCurrentHand] = currentHand;
+
+      this.setState({ currentHand });
+    }
   }
 
   doubleDown(makeBadDecision: boolean) {
@@ -346,7 +357,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     }
 
     if (!makeBadDecision && badDecision !== '') {
-      console.log(`BAD DECISION =================== ${badDecision}`);
+      console.log(`BAD DECISION ===== ${badDecision}`);
       this.setState({ isProcessing: true, badDecision, isQuestioningBadDecisionToDouble: true });
     } else {
       const currentHand = this.state.currentHand.clone();
@@ -584,8 +595,13 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
               />
               <Prompt
                 promptText={this.state.badDecision}
-                respond={(response: boolean) => this.badDecisionResponse(response, () => this.hit(true))}
+                respond={(response: boolean) => this.badDecisionResponse(response, () => this.doubleDown(true))}
                 isPromptActive={this.state.isQuestioningBadDecisionToDouble}
+              />
+              <Prompt
+                promptText={this.state.badDecision}
+                respond={(response: boolean) => this.badDecisionResponse(response, () => this.stand(true))}
+                isPromptActive={this.state.isQuestioningBadDecisionToStand}
               />
               {this.activeHands.length > 0 && (
                 <div className="whole row wrap outline" style={{ justifyContent: 'space-around' }}>
@@ -636,28 +652,15 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                   ? [
                       { text: 'Double Down', handler: () => this.doubleDown(false), decision: Decision.DoubleDown },
                       { text: 'Split', handler: this.split, decision: Decision.Split },
-                      { text: 'Stand', handler: this.stand, decision: Decision.Stand },
+                      { text: 'Stand', handler: () => this.stand(false), decision: Decision.Stand },
                       { text: 'Hit', handler: () => this.hit(false), decision: Decision.Hit },
                     ].map(({ text, handler, decision }) => {
                       const isDisabled =
-                        // true ||
                         this.state.isProcessing ||
                         this.state.currentlyOfferingInsurance ||
-                        !this.state.currentHand.isDecisionValid(decision);
-                      return (
-                        <Button
-                          key={text}
-                          onClick={handler}
-                          disabled={isDisabled}
-                          className={`${styles.button} ${isDisabled && styles.disabled}`}
-                          style={{
-                            color: 'white',
-                            margin: '1em',
-                          }}
-                        >
-                          {text.toUpperCase()}
-                        </Button>
-                      );
+                        !this.state.currentHand.isDecisionValid(decision) ||
+                        this.props.appSettings.isSettingsOpen;
+                      return <SexyButton key={text} text={text} onClick={handler} disabled={isDisabled} />;
                     })
                   : [
                       {
@@ -665,22 +668,23 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                         handler: () => this.setState({ dealer: null, currentHand: null }),
                       },
                       { text: 'Rebet & Deal', handler: this.rebetAndDeal },
-                    ].map(({ text, handler }) => (
-                      <Button
-                        key={text}
-                        onClick={handler}
-                        variant="contained"
-                        className={styles.button}
-                        style={{
-                          height: '4em',
-                          width: '10em',
-                          padding: 0,
-                          margin: '1em',
-                        }}
-                      >
-                        {text}
-                      </Button>
-                    ))}
+                    ].map(({ text, handler }) => {
+                      const isDisabled = this.props.appSettings.isSettingsOpen;
+                      return (
+                        <SexyButton
+                          key={text}
+                          text={text}
+                          onClick={handler}
+                          disabled={isDisabled}
+                          /* style={{
+                            height: '4em',
+                            width: '10em',
+                            padding: 0,
+                            margin: '1em',
+                          }} */
+                        />
+                      );
+                    })}
               </div>
               <div className="half row outline" style={{ justifyContent: 'center' }}>
                 {/* <Button onClick={this.showResults} variant="contained" size="small" style={{ margin: '1em' }}>
@@ -695,7 +699,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
             </div>
           </>
         ) : (
-          <ChipSelector deal={this.deal} />
+          <ChipSelector deal={this.deal} isSettingsOpen={this.props.appSettings.isSettingsOpen} />
         )}
       </div>
     );
