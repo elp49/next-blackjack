@@ -10,7 +10,7 @@ const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
 const COOKIE_SHOW_COUNT = 'showCount';
 
 export type AppSettings = {
-  isSettingsOpen: boolean;
+  disabled: boolean;
   offerInsurance: boolean;
   dealerHitSoft17: boolean;
   showRunningCount: boolean;
@@ -67,7 +67,10 @@ const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
           onClose={closeSettings}
         />
       )}
-      <Component {...pageProps} appSettings={{ isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }} />
+      <Component
+        {...pageProps}
+        appSettings={{ disabled: isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }}
+      />
     </Layout>
   );
 };

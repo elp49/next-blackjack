@@ -659,7 +659,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                         this.state.isProcessing ||
                         this.state.currentlyOfferingInsurance ||
                         !this.state.currentHand.isDecisionValid(decision) ||
-                        this.props.appSettings.isSettingsOpen;
+                        this.props.appSettings.disabled;
                       return <SexyButton key={text} text={text} onClick={handler} disabled={isDisabled} />;
                     })
                   : [
@@ -669,7 +669,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                       },
                       { text: 'Rebet & Deal', handler: this.rebetAndDeal },
                     ].map(({ text, handler }) => {
-                      const isDisabled = this.props.appSettings.isSettingsOpen;
+                      const isDisabled = this.props.appSettings.disabled;
                       return (
                         <SexyButton
                           key={text}
@@ -699,7 +699,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
             </div>
           </>
         ) : (
-          <ChipSelector deal={this.deal} isSettingsOpen={this.props.appSettings.isSettingsOpen} />
+          <ChipSelector deal={this.deal} disabled={this.props.appSettings.disabled} />
         )}
       </div>
     );
