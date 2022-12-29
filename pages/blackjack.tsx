@@ -9,12 +9,18 @@ import Panel from '../components/Panel';
 import Prompt from '../components/Prompt';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWENTY_ONE } from '../utils/constants';
+import { isArrayEqual } from '../utils/utils';
+import { AppSettings } from './_app';
 
 const NUM_DECKS = 6;
-const HIT_SOFT_SEVENTEEN = true;
+// const HIT_SOFT_SEVENTEEN = true;
 
 // const DEFAULT_TIMEOUT = 100;
 const DEFAULT_TIMEOUT = 500;
+
+export interface IBlackjackProps {
+  appSettings: AppSettings;
+}
 
 export interface IBlackjackState {
   dealer: Hand;
@@ -29,11 +35,10 @@ export interface IBlackjackState {
   count: number;
 }
 
-class Blackjack extends React.Component<{}, IBlackjackState> {
+class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
   results: Results;
   deck: Deck;
   activeHands: PlayerHand[];
-  decisionHandlers: { decision: Decision; handler: (any?: any) => void }[];
   wager: number;
 
   constructor(props) {
@@ -66,6 +71,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     this.split = this.split.bind(this);
     this.showResults = this.showResults.bind(this);
     this.redeal = this.redeal.bind(this);
+    this.autoHitSplitHand = this.autoHitSplitHand.bind(this);
   }
 
   rebetAndDeal() {
@@ -135,9 +141,24 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                       this.setState({ dealer, count }, () => {
                         const currentlyOfferingInsurance = this.state.dealer.cards[1].IsAce;
 
+                        // Check if player has blackjack
+                        console.log('checking if player has blackjack');
+                        if (this.state.currentHand.IsBlackjack) {
+                          console.log('player has blackjack');
+                          const currentHand = this.state.currentHand.clone();
+                          currentHand.stand();
+
+                          const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
+                          this.activeHands[iCurrentHand] = currentHand;
+
+                          this.setState({ currentHand });
+                        } else {
+                          console.log('nope');
+                        }
+
                         this.setState(
                           {
-                            isProcessing: currentlyOfferingInsurance,
+                            isProcessing: currentlyOfferingInsurance || this.state.dealer.IsBlackjack,
                             currentlyOfferingInsurance,
                           },
                           () => {
@@ -169,18 +190,7 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     console.log('offering insurance');
 
     const currentHand = this.state.currentHand.clone();
-    if (accepted) {
-      console.log('Accepted');
-      currentHand.acceptInsurance();
-    } else console.log('Declined');
-
-    // useless cause state updating timeing and timeout not work together
-    // build anticipation
-    for (let i = 0; i < 3; i++) {
-      setTimeout(() => {
-        console.log('.');
-      }, 1000);
-    }
+    if (accepted) currentHand.acceptInsurance();
 
     console.log('checking if dealer has blackjack');
     if (this.state.dealer.IsBlackjack) {
@@ -412,119 +422,51 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
     );
   };
 
+  autoHitSplitHand() {
+    console.log();
+    console.log('AUTO-HIT SPLIT HAND');
+    const currentHand = this.state.currentHand.clone();
+    const card = this.deck.draw();
+    currentHand.addCard(card);
+    const count = this.state.count + card.CountValue;
+
+    // Auto-stand 21 or split aces but only if not dealt another ace
+    if ((currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) || currentHand.IsTwentyOne) {
+      console.log('AUTO-STAND 21 or SPLIT ACES');
+      currentHand.stand();
+    }
+
+    const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
+    this.activeHands[iCurrentHand] = currentHand;
+
+    this.setState({ currentHand, count });
+  }
+
   componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<IBlackjackState>, snapshot?: any): void {
-    // console.log();
-    // console.log();
-    // console.log();
-    // console.log();
-    console.log(
-      '|================================================ BEGIN componentDidUpdate BEGIN ================================================|'
-    );
-    // console.log();
-    try {
-      /* console.log(`prevState: ${prevState.currentHand === null ? 'null' : prevState.currentHand.toString()}`);
-      console.log(`thisState: ${this.state.currentHand.toString()}`); */
-      /*
-      console.log(`this.activeHands.length: ${this.activeHands.length}`);
-      console.log(
-        `prevState.currentHand: ${prevState.currentHand} ${prevState.currentHand.ValueString}, this.state.currentHand: ${this.state.currentHand} ${this.state.currentHand.ValueString}`
-      );
-      console.log(
-        `prevState.currentHand.IsBust: ${prevState.currentHand.IsBust}, this.state.currentHand.IsBust: ${this.state.currentHand.IsBust}`
-      );
-      console.log(
-        `prevState.currentHand.IsTwentyOne: ${prevState.currentHand.IsTwentyOne}, this.state.currentHand.IsTwentyOne: ${this.state.currentHand.IsTwentyOne}`
-      );
-      console.log(
-        `prevState.currentHand.IsBlackjack: ${prevState.currentHand.IsBlackjack}, this.state.currentHand.IsBlackjack: ${this.state.currentHand.IsBlackjack}`
-      );
-      console.log(
-        `prevState.currentHand.didStand: ${prevState.currentHand.didStand}, this.state.currentHand.didStand: ${this.state.currentHand.didStand}`
-      );
-      console.log(
-        `prevState.dealer: ${prevState.dealer} ${prevState.dealer.ValueString}, this.state.dealer: ${this.state.dealer} ${this.state.dealer.ValueString}`
-      );
-      console.log(
-        `prevState.dealer.IsBust: ${prevState.dealer.IsBust}, this.state.dealer.IsBust: ${this.state.dealer.IsBust}`
-      );
-      console.log(
-        `prevState.dealer.IsTwentyOne: ${prevState.dealer.IsTwentyOne}, this.state.dealer.IsTwentyOne: ${this.state.dealer.IsTwentyOne}`
-      );
-      console.log(
-        `prevState.dealer.IsBlackjack: ${prevState.dealer.IsBlackjack}, this.state.dealer.IsBlackjack: ${this.state.dealer.IsBlackjack}`
-      );
-      console.log(
-        `prevState.dealer.didStand: ${prevState.dealer.didStand}, this.state.dealer.didStand: ${this.state.dealer.didStand}`
-      ); */
-    } catch (error) {}
+    console.log();
+    console.log('|=============== BEGIN componentDidUpdate BEGIN ===============|');
 
-    /*  (!prevState.currentHand.IsBust && this.state.currentHand.IsBust) ||
-        (!prevState.currentHand.IsTwentyOne && this.state.currentHand.IsTwentyOne) ||
-        (!prevState.currentHand.IsBlackjack && this.state.currentHand.IsBlackjack) ||
-        (!prevState.currentHand.didStand && this.state.currentHand.didStand) */
-
-    if (this.state.currentHand) {
-      // DEBUG: display all active hands
-      if (this.activeHands.length > 0) {
+    // Update props
+    if (prevProps && this.props)
+      if (this.state.currentHand) {
+        // DEBUG: display all active hands
         this.activeHands.forEach((x, i) =>
           console.log(`\tHand ${i}:\t${x} ${x.IsBlackjack ? 'BLACKJACK' : x.ValueString}`)
         );
-      }
 
-      if (this.state.dealer && !this.state.isProcessing) {
-        if (this.state.currentHand.IsBust) console.log(' == BUST == ');
-        if (this.state.currentHand.didStand) console.log(' == STAND == ');
-        if (this.state.currentHand.IsTwentyOne) console.log(' == 21 == ');
-        if (this.state.currentHand.IsBlackjack) console.log(' == BLACKJACK == ');
-
-        // Auto-hit on split hands
-        if (this.state.currentHand.didSplit && this.state.currentHand.cards.length === 1) {
-          console.log();
-          console.log('AUTO-HIT SPLIT HAND');
-          const currentHand = this.state.currentHand.clone();
-          const card = this.deck.draw();
-          currentHand.addCard(card);
-          const count = this.state.count + card.CountValue;
-
-          // Auto-stand 21 or split aces but only if not dealt another ace
-          if ((currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) || currentHand.IsTwentyOne) {
-            console.log('AUTO-STAND 21 or SPLIT ACES');
-            currentHand.stand();
-          }
-
-          const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
-          this.activeHands[iCurrentHand] = currentHand;
-
-          this.setState({ currentHand, count });
-        }
-
-        // Still some active hands remaining
-        // TODO: consider checking if result===inprogress
-        if (this.activeHands.some((x) => !x.didStand && !x.IsBust)) {
-          console.log('Still some active hands remaining');
-          console.log(`currentHand: ${this.state.currentHand.toString()}`);
-          // Fresh hand - NOT NECESSARILY DEALT CARDS
-          if (!this.state.currentHand.didStand && !this.state.currentHand.DidHit) {
-            console.log('detected a fresh hand');
-            // Check if player has blackjack
-            console.log('checking if player has blackjack');
-            if (this.state.currentHand.IsBlackjack) {
-              console.log('player has blackjack');
-              const currentHand = this.state.currentHand.clone();
-              currentHand.stand();
-
-              const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
-              this.activeHands[iCurrentHand] = currentHand;
-
-              this.setState({ currentHand });
-            } else {
-              console.log('nope');
-            }
+        // Dealing completed and no active prompts.
+        if (this.state.dealer && !this.state.isProcessing) {
+          // Auto-hit on split hands
+          if (this.state.currentHand.didSplit && this.state.currentHand.cards.length === 1) {
+            this.autoHitSplitHand();
           }
 
           // New current hand exists
-          else if (this.state.currentHand.didStand || this.state.currentHand.IsBust) {
-            console.log('updating current hand to next active hand');
+          else if (
+            (this.state.currentHand.didStand || this.state.currentHand.IsBust) &&
+            this.activeHands.some((x) => !x.didStand && !x.IsBust)
+          ) {
+            console.log('New current hand exists, updating current hand to next active hand');
             const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
             console.log(`iCurrentHand: ${iCurrentHand}`);
 
@@ -535,117 +477,88 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
               this.setState({ currentHand });
             }
           }
-        }
 
-        // All active hands either stood or busted
-        else {
-          console.log('All active hands either stood or busted');
-          // Flip first dealer card before playing
-          if (!this.state.dealer.cards[0].isFaceUp) {
-            console.log('flipping dealer second card');
-            const dealer = this.state.dealer.clone();
-            dealer.cards[0].flip(); // show dealer first card
-            const count = this.state.count + dealer.cards[0].CountValue;
-            this.setState({ dealer, count });
-          }
-
-          // Dealer plays
-          else if (!this.state.dealer.didStand && this.activeHands.some((x) => !x.IsBlackjack && !x.IsBust)) {
-            console.log('Dealer plays');
-            const dealer = this.state.dealer.clone();
-            let count = this.state.count;
-            // both cards flipped, play
-            console.log(`dealer value best ${dealer.BestValue}`);
-            console.log(`player value best ${this.state.currentHand.BestValue}`);
-            console.log(`active hand value best ${this.activeHands[0].BestValue}`);
-            let dealerWillHit =
-              this.activeHands.some((x) => !x.IsBust) && // exists hands that didnt bust
-              (dealer.BestValue < SEVENTEEN || // and dealer under 17 and players exist with 17 or more
-                (dealer.HasAce &&
-                  dealer.ValueSoft == SEVENTEEN &&
-                  HIT_SOFT_SEVENTEEN &&
-                  this.activeHands.some((x) => x.BestValue >= SEVENTEEN)));
-            if (dealerWillHit) {
-              const card = this.deck.draw();
-              console.log(`Dealer dealt card ${card.toString()}`);
-              dealer.addCard(card);
-              count += card.CountValue;
-            } else {
-              console.log('Dealer stands');
-              dealer.stand();
+          // All active hands either stood or busted
+          else if (!this.activeHands.some((x) => !x.didStand && !x.IsBust)) {
+            console.log('All active hands either stood or busted');
+            // Flip first dealer card before playing
+            if (!this.state.dealer.cards[0].isFaceUp) {
+              console.log('flipping dealer second card');
+              const dealer = this.state.dealer.clone();
+              dealer.cards[0].flip(); // show dealer first card
+              const count = this.state.count + dealer.cards[0].CountValue;
+              this.setState({ dealer, count });
             }
 
-            // this.setState({ dealer });
-            setTimeout(() => {
-              this.setState({ dealer, count });
-            }, DEFAULT_TIMEOUT);
-          }
-
-          // Calculate results
-          else if (this.activeHands.some((x) => x.result === HandResult.InProgress)) {
-            this.activeHands.forEach((hand, i) => {
-              console.log();
-              console.log('Results');
-
-              hand.calculateResult(this.state.dealer);
-              this.results.RecordHand(hand);
-              if (i === this.activeHands.length - 1) {
-                this.setState({ currentHand: hand });
+            // Dealer plays
+            else if (!this.state.dealer.didStand && this.activeHands.some((x) => !x.IsBlackjack && !x.IsBust)) {
+              console.log('Dealer plays');
+              const dealer = this.state.dealer.clone();
+              let count = this.state.count;
+              const dealerWillHit =
+                (dealer.ValueHard < SEVENTEEN && (dealer.ValueSoft < SEVENTEEN || dealer.ValueSoft > TWENTY_ONE)) || // dealer under 17 or
+                (this.props.appSettings.dealerHitSoft17 && // dealer hit soft 17 and
+                  dealer.HasAce &&
+                  dealer.ValueSoft === SEVENTEEN &&
+                  this.activeHands.some((x) => x.BestValue >= SEVENTEEN)); // some hands with 17 or more
+              if (dealerWillHit) {
+                const card = this.deck.draw();
+                console.log(`Dealer dealt card ${card.toString()}`);
+                dealer.addCard(card);
+                count += card.CountValue;
+              } else {
+                console.log('Dealer stands');
+                dealer.stand();
               }
 
-              console.log(`Hand ${i + 1} `);
-              // prettier-ignore
-              if (hand.IsWin) {
-            if (hand.result == HandResult.WinByBlackjack)
-              console.log('BLACKJACK');
+              setTimeout(() => {
+                this.setState({ dealer, count });
+              }, DEFAULT_TIMEOUT);
+            }
 
-            else console.log('WINNER WINNER');
-          }
+            // Calculate results
+            else if (this.activeHands.some((x) => x.result === HandResult.InProgress)) {
+              this.activeHands.forEach((hand, i) => {
+                console.log();
+                console.log('Results');
 
-          else if (hand.IsLoss)
-            console.log('DEALER WINS');
+                hand.calculateResult(this.state.dealer);
+                this.results.RecordHand(hand);
+                if (i === this.activeHands.length - 1) {
+                  this.setState({ currentHand: hand });
+                }
 
-          else console.log('PUSH');
+                console.log(`Hand ${i + 1} `);
+                if (hand.IsWin) {
+                  if (hand.result == HandResult.WinByBlackjack) console.log('BLACKJACK');
+                  else console.log('WINNER WINNER');
+                } else if (hand.IsLoss) console.log('DEALER WINS');
+                else console.log('PUSH');
 
-              console.log();
-              console.log(
-                `\tDealer:\t\t${this.state.dealer.toString()} ${
-                  this.state.dealer.IsBlackjack ? 'BLACKJACK' : this.state.dealer.ValueString
-                }`
-              );
-              console.log(`\tYour Hand:\t${hand} ${hand.IsBlackjack ? 'BLACKJACK' : hand.ValueString}`);
-              console.log(`\tWager:\t\t${hand.wager}`);
-              console.log(`\tPayout:\t\t${hand.Payout}\n`);
-              console.log();
-            });
+                console.log();
+                console.log(
+                  `\tDealer:\t\t${this.state.dealer.toString()} ${
+                    this.state.dealer.IsBlackjack ? 'BLACKJACK' : this.state.dealer.ValueString
+                  }`
+                );
+                console.log(`\tYour Hand:\t${hand} ${hand.IsBlackjack ? 'BLACKJACK' : hand.ValueString}`);
+                console.log(`\tWager:\t\t${hand.wager}`);
+                console.log(`\tPayout:\t\t${hand.Payout}\n`);
+                console.log();
+              });
+            }
           }
         }
-      }
 
-      // Get valid decisions.
-      const validDecisions = Object.values(Decision).filter((x) => this.state.currentHand.isDecisionValid(x));
-      if (
-        validDecisions.length !== this.state.validDecisions.length ||
-        this.state.validDecisions.some((x) => !validDecisions.includes(x))
-        // this.state.validDecisions.some((x) => !validDecisions.includes(x)).length > 0
-      ) {
-        console.log();
-        console.log(`hand result -> ${this.state.currentHand.result}`);
-        /* console.log('previous validDecisions');
-        this.state.validDecisions.forEach((x) => console.log(x));
-        console.log();
-        console.log('validDecisions');
-        validDecisions.forEach((x) => console.log(x));
-        console.log(); */
-        this.setState({
-          validDecisions,
-        });
+        // Update valid decisions
+        const validDecisions = Object.values(Decision).filter((x) => this.state.currentHand.isDecisionValid(x));
+        if (!isArrayEqual(validDecisions, prevState.validDecisions)) {
+          this.setState({
+            validDecisions,
+          });
+        }
       }
-    }
-    // console.log();
-    console.log(
-      '|================================================ END componentDidUpdate END ================================================|'
-    );
+    console.log('|=============== END componentDidUpdate END ===============|');
     console.log();
   }
 
@@ -654,7 +567,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
       <div className={`column container outline ${styles.table}`}>
         <div id="dealer" className="twenty column outline">
           {this.state.dealer && this.state.dealer.render()}
-          {/* {this.state.dealer && this.state.dealer.WasDealtCards && this.state.dealer.cards.map((c) => c.render())} */}
         </div>
 
         {this.state.currentHand ? (
@@ -681,8 +593,6 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
                     .filter((x) => x !== this.state.currentHand)
                     .map((x, i) => (
                       <div key={`activeHand-${i}`} className="column" style={{ margin: '0 1em 0 1em' }}>
-                        {/* <p>Hand {this.activeHands.indexOf(x) + 1}</p>
-                      <h3>{x.result}</h3> */}
                         {x.render()}
                       </div>
                     ))}
@@ -691,17 +601,19 @@ class Blackjack extends React.Component<{}, IBlackjackState> {
             </div>
 
             <div
-              id="player"
+              id="playerHand"
               className="twenty row outline"
               style={{ justifyContent: 'space-around', alignItems: 'center' }}
             >
               <div className="quarter column outline">
-                <Panel
-                  info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
-                  style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
-                />
+                {this.props.appSettings.showRunningCount && (
+                  <Panel
+                    info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
+                    style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
+                  />
+                )}
               </div>
-              <div id="handStatus" className="half column outline">
+              <div className="half column outline">
                 {this.state.currentHand && this.state.currentHand.WasDealtCards && (
                   <>
                     {this.state.currentHand.render()}

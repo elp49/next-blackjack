@@ -110,29 +110,23 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
     const children = [...this.cards];
     const parent = children && children.length > 0 ? children.shift() : null;
 
-    try {
-      /* console.log(`rending ${this.isDealer ? ' // DEALER \\\\ ' : 'player'} hand`);
-      console.log(`this.cards.length: ${this.cards.length}`);
-      console.log(`children.length: ${children.length}`);
-      console.log(`parent: ${parent.Rank}`);
-      children.forEach((x) => console.log(`child: ${x.Rank}`)); */
-    } catch (error) {}
-
     return (
       <div className="column">
-        {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[0].isFaceUp)) && (
-          <p
-            style={{
-              fontSize: '1.5em',
-              color: 'white',
-              // textShadow: '-1px 1px 2px #000, 1px 1px 2px #000, 1px -1px 2px #000, -1px -1px 2px #000',
-              textShadow: '-1px 1px 2px #000',
-            }}
-          >
-            {/* this logic should probably be in the BestValue property */}
-            {this.didStand ? this.BestValue : this.ValueString}
-          </p>
-        )}
+        <p
+          style={{
+            height: '1.5em',
+            fontSize: '1.5em',
+            color: 'white',
+            // textShadow: '-1px 1px 2px #000, 1px 1px 2px #000, 1px -1px 2px #000, -1px -1px 2px #000',
+            textShadow: '-1px 1px 2px #000',
+          }}
+        >
+          {this.WasDealtCards && (!this.isDealer || (this.cards.length >= 2 && this.cards[0].isFaceUp))
+            ? this.didStand
+              ? this.BestValue
+              : this.ValueString
+            : ''}
+        </p>
         <div
           style={{
             position: 'relative',
@@ -140,13 +134,14 @@ class Hand extends React.Component<IHandProps, IHandState> implements IHand {
           }}
         >
           {parent && parent.recursiveRender(children, true)}
-          {this.result !== HandResult.InProgress && (
+          {!this.isDealer && this.result !== HandResult.InProgress && (
             <div
               style={{
                 position: 'absolute',
                 top: '50%',
-                // minWidth: 'calc(5em + 6px)',
-                minWidth: '50%',
+                left: '-6px',
+                minWidth: 'calc(5em + 6px)',
+                // minWidth: '50%',
                 backgroundColor: 'black',
                 opacity: 0.9,
                 padding: '0.2em',

@@ -16,6 +16,20 @@ export function msToTime(duration) {
   return `${hrs < 10 ? '0' + hrs : hrs}:${min < 10 ? '0' + min : min}:${sec < 10 ? '0' + sec : sec}`;
 }
 
+export function isArrayEqual(a, b, orderMatters: boolean = false): boolean {
+  let isEqual = false;
+
+  if (a.length === b.length) {
+    if (orderMatters) {
+      isEqual = a.every((x, i) => x === b[i]);
+    } else {
+      isEqual = a.every((x) => b.includes(x));
+    }
+  }
+
+  return isEqual;
+}
+
 /**
  * Determines if the user is on a mobile device or the window width is less than 1000px.
  * NOTE: exceptions to the mobile device rule are iPad pros and some tablets.
