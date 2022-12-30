@@ -47,7 +47,7 @@ export interface IBlackjackState {
   isQuestioningBadDecisionToDouble: boolean;
   isQuestioningBadDecisionToStand: boolean;
   cancelTimeout: boolean;
-  count: number;
+  runningCount: number;
 }
 
 class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
@@ -76,7 +76,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
       isQuestioningBadDecisionToDouble: false,
       isQuestioningBadDecisionToStand: false,
       cancelTimeout: false,
-      count: 0,
+      runningCount: 0,
     };
 
     this.results = new Results();
@@ -119,12 +119,12 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     this.wager = wager;
     const currentHand = new PlayerHand({ wager });
     const dealer = new Hand({ isDealer: true });
-    let count = this.state.count;
+    let runningCount = this.state.runningCount;
 
     // Get new deck
     if (!this.deck || this.deck.RemainingCount < DECK_SIZE) {
       this.deck = new Deck(NUM_DECKS);
-      count = 0;
+      runningCount = 0;
 
       // Burn first card in deck
       console.log('Burning card');
@@ -134,10 +134,10 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     // Deal cards
     const card = this.deck.draw();
     currentHand.addCard(card);
-    count += card.CountValue;
+    runningCount += card.CountValue;
 
     this.activeHands = [currentHand];
-    this.setState({ isProcessing: true, cancelTimeout: false, currentHand, dealer, count }, () => {
+    this.setState({ isProcessing: true, cancelTimeout: false, currentHand, dealer, runningCount }, () => {
       setTimeout(() => {
         if (!this.state.cancelTimeout) {
           const dealer = this.state.dealer.clone();
@@ -150,17 +150,17 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                 const card = this.deck.draw();
                 currentHand.addCard(card);
                 this.activeHands = [currentHand];
-                count += card.CountValue;
+                runningCount += card.CountValue;
 
-                this.setState({ currentHand, count }, () => {
+                this.setState({ currentHand, runningCount }, () => {
                   setTimeout(() => {
                     if (!this.state.cancelTimeout) {
                       const dealer = this.state.dealer.clone();
                       const card = this.deck.draw();
                       dealer.addCard(card); // show dealer second card
-                      count += card.CountValue;
+                      runningCount += card.CountValue;
 
-                      this.setState({ dealer, count }, () => {
+                      this.setState({ dealer, runningCount }, () => {
                         const currentlyOfferingInsurance =
                           this.state.dealer.cards[1].IsAce && this.state.offerInsurance;
 
@@ -228,7 +228,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
       dealer.cards[0].flip();
       dealer.stand();
       currentHand.stand();
-      const count = this.state.count + dealer.cards[0].CountValue;
+      const runningCount = this.state.runningCount + dealer.cards[0].CountValue;
 
       this.activeHands = [currentHand];
       this.setState({
@@ -236,7 +236,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
         currentlyOfferingInsurance: false,
         dealer,
         currentHand,
-        count,
+        runningCount,
       });
     }
 
@@ -307,7 +307,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
           setTimeout(() => {
             const iCard = currentHand.cards.length - 1;
             currentHand.cards[iCard].flip();
-            const count = this.state.count + currentHand.cards[iCard].CountValue;
+            const runningCount = this.state.runningCount + currentHand.cards[iCard].CountValue;
 
             // Auto-stand
             if (currentHand.IsTwentyOne) {
@@ -326,7 +326,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
             this.setState({
               isProcessing: false,
               currentHand,
-              count,
+              runningCount,
             });
           }, DEFAULT_TIMEOUT);
         }
@@ -383,12 +383,12 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
       const currentHand = this.state.currentHand.clone();
       const card = this.deck.draw();
       currentHand.doubleDown(card);
-      const count = this.state.count + card.CountValue;
+      const runningCount = this.state.runningCount + card.CountValue;
 
       const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
       this.activeHands[iCurrentHand] = currentHand;
 
-      this.setState({ currentHand, count });
+      this.setState({ currentHand, runningCount });
     }
   }
 
@@ -459,7 +459,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     const currentHand = this.state.currentHand.clone();
     const card = this.deck.draw();
     currentHand.addCard(card);
-    const count = this.state.count + card.CountValue;
+    const runningCount = this.state.runningCount + card.CountValue;
 
     // Auto-stand 21 or split aces but only if not dealt another ace
     if ((currentHand.cards[0].Rank === ACE && currentHand.cards[1].Rank !== ACE) || currentHand.IsTwentyOne) {
@@ -470,7 +470,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
     const iCurrentHand = this.activeHands.indexOf(this.state.currentHand);
     this.activeHands[iCurrentHand] = currentHand;
 
-    this.setState({ currentHand, count });
+    this.setState({ currentHand, runningCount });
   }
 
   componentDidMount(): void {
@@ -541,8 +541,8 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
               console.log('flipping dealer second card');
               const dealer = this.state.dealer.clone();
               dealer.cards[0].flip(); // show dealer first card
-              const count = this.state.count + dealer.cards[0].CountValue;
-              this.setState({ dealer, count });
+              const runningCount = this.state.runningCount + dealer.cards[0].CountValue;
+              this.setState({ dealer, runningCount });
             }
 
             // Dealer plays
@@ -550,7 +550,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
               if (!this.state.isDealerPlaying) {
                 console.log('Dealer plays');
                 const dealer = this.state.dealer.clone();
-                let count = this.state.count;
+                let runningCount = this.state.runningCount;
                 const dealerWillHit =
                   (dealer.ValueHard < SEVENTEEN && (dealer.ValueSoft < SEVENTEEN || dealer.ValueSoft > TWENTY_ONE)) || // dealer under 17 or
                   (this.state.dealerHitSoft17 && // dealer hit soft 17 and
@@ -564,7 +564,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                   console.log(
                     `\tdealer hand:\t${dealer.toString()} ${dealer.IsBlackjack ? 'BLACKJACK' : dealer.ValueString}`
                   );
-                  count += card.CountValue;
+                  runningCount += card.CountValue;
                 } else {
                   console.log('Dealer stands');
                   dealer.stand();
@@ -576,7 +576,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                   },
                   () => {
                     setTimeout(() => {
-                      this.setState({ dealer, count, isDealerPlaying: false });
+                      this.setState({ dealer, runningCount, isDealerPlaying: false });
                     }, DEFAULT_TIMEOUT);
                   }
                 );
@@ -700,7 +700,7 @@ class Blackjack extends React.Component<IBlackjackProps, IBlackjackState> {
                 <div className="quarter column outline">
                   {this.state.showRunningCount && (
                     <Panel
-                      info={['Count:', `${this.state.count > 0 ? '+' : ''}${this.state.count}`]}
+                      info={['Count:', `${this.state.runningCount > 0 ? '+' : ''}${this.state.runningCount}`]}
                       style={{ paddingLeft: '0.5em', paddingRight: '0.5em' }}
                     />
                   )}
