@@ -22,7 +22,7 @@ class Deck {
     // this.cards = this.tensAndAces(nDecks);
     // this.cards = this.createDefaultDeck(nDecks);
 
-    if (props.nDecks > 0) this.cards = this.allAces(props.nDecks);
+    if (props.nDecks > 0) this.cards = this.createDefaultDeck(props.nDecks);
     else this.cards = [];
     this.shuffle();
 
