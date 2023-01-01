@@ -13,6 +13,9 @@ function Home(): JSX.Element {
           <Link href="/blackjack" className={styles.sexyButton}>
             Blackjack
           </Link>
+          <Link href="/chess" className={styles.sexyButton}>
+            Chess
+          </Link>
         </div>
         <div className="third column"></div>
       </div>

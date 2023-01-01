@@ -1,0 +1,93 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.5em;
+  border: 0.5em solid black;
+}
+
+.tile {
+  display: flex;
+  height: calc(100% / 8);
+  width: calc(100% / 8);
+  position: relative;
+  /* border: 1px solid #333; */
+}
+.tile.white {
+  background: rgb(200, 200, 200);
+  background: #ddd;
+  /* background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(169, 169, 169, 1) 80%); */
+}
+.tile.black {
+  background: rgb(125, 125, 125);
+  background: #333;
+  /* background: radial-gradient(circle, rgba(69, 69, 69, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(69, 69, 69, 1) 100%); */
+  /* background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(169, 169, 169, 1) 80%); */
+}
+.tile.white .position {
+  color: #000;
+}
+.tile.black .position {
+  color: #fff;
+}
+
+.tile > .tileHighlight {
+  height: 100%;
+  width: 100%;
+  background: rgb(102, 102, 102);
+  background: radial-gradient(
+    circle,
+    rgba(102, 102, 102, 0.3) 0%,
+    rgba(221, 221, 221, 0.3) 95%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+}
+
+.piece {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 5em;
+  cursor: grab;
+}
+.piece.white {
+  text-shadow: -1px -1px 0px rgba(0, 0, 0, 0.9);
+  /* color: rgba(225, 225, 225, 0.9); */
+  color: rgba(255, 255, 255, 0.9);
+
+  /* background: -webkit-linear-gradient(#eee, #333); */
+  /* background: -webkit-linear-gradient(90deg, rgba(102, 102, 102, 1) 0%, rgba(255, 255, 255, 1) 90%);
+  background: -webkit-linear-gradient(90deg, black, white 25%); */
+  /* background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; */
+
+  /* color: linear-gradient(); */
+}
+.piece.black {
+  text-shadow: -0.5px -0.5px 0px rgba(221, 221, 221, 0.8);
+  /* color: rgb(225, 225, 225); */
+}
+
+@media all and (orientation: landscape) {
+  /* body:after {
+     content: "width is greater than height"
+  } */
+  .board {
+    height: 85vh;
+    width: 85vh;
+  }
+}
+
+@media all and (orientation: portrait) {
+  /* body:after {
+     content: "height is greater than width"
+  } */
+  .board {
+    height: 85vw;
+    width: 85vw;
+  }
+}

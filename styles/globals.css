@@ -130,6 +130,16 @@ button {
   height: 100%;
   width: 100%;
 }
+.column > .seventyFive {
+  height: 75%;
+  width: 100%;
+  margin: auto;
+}
+.row > .seventyFive {
+  height: 100%;
+  width: 75%;
+  margin: auto;
+}
 .column > .half {
   height: 50%;
   width: 100%;
@@ -231,4 +241,24 @@ button {
 }
 .moreSpace {
   margin: 2em;
+}
+.topLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.topRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.bottomLeft {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.bottomRight {
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
