@@ -1,6 +1,7 @@
 import Card from '../../blackjack/classes/Card';
 import styles from '../../styles/card.module.css';
 import Hand, { HandResult } from '../classes/Hand';
+import CardComponent from './CardComponent';
 
 type HandComponentProps = {
   hand: Hand;
@@ -15,9 +16,6 @@ function HandComponent({ hand, isDealer }: HandComponentProps): JSX.Element {
     const children = [...cards];
     const parent = children.shift();
 
-    // const grandchildren = [...children];
-    // const child = grandchildren && grandchildren.length > 0 ? grandchildren.shift() : null;
-
     return (
       <div
         key={parent.Key}
@@ -26,15 +24,7 @@ function HandComponent({ hand, isDealer }: HandComponentProps): JSX.Element {
       >
         {parent.isFaceUp ? (
           <>
-            {parent.getCardSuits()}
-            <div className={styles.cardTopLeft}>
-              <div className={styles.cardCornerRank}>{parent.Rank}</div>
-              <div className={styles.cardCornerSuit}>{parent.Suit}</div>
-            </div>
-            <div className={styles.cardBottomRight}>
-              <div className={styles.cardCornerRank}>{parent.Rank}</div>
-              <div className={styles.cardCornerSuit}>{parent.Suit}</div>
-            </div>
+            <CardComponent card={parent} />
             {children.length > 0 && recursiveRender(children, false)}
           </>
         ) : (

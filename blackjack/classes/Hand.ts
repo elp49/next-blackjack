@@ -79,15 +79,11 @@ class Hand implements IHand {
   }
 
   public addCard(card: Card): void {
-    // this.setState({ cards: [...this.state.cards, card] });
     this.cards.push(card);
-    // this.state = { ...this.state, cards: [...this.cards, card] };
   }
 
   public stand(): void {
-    // this.setState({ didStand: true });
     this.didStand = true;
-    // this.state = { ...this.state, didStand: true };
   }
 
   public toString(): string {
@@ -103,63 +99,8 @@ class Hand implements IHand {
         didStand: this.didStand,
       },
     });
-    // clone.setState(this.state);
-    /* clone.cards = [...this.cards];
-    clone.result = this.result;
-    clone.didStand = this.didStand; */
     return clone;
   }
-
-  /* render() {
-    return (
-      <div className="column">
-        <p
-          style={{
-            height: '1.5em',
-            fontSize: '1.5em',
-            color: 'white',
-            // textShadow: '-1px 1px 2px #000, 1px 1px 2px #000, 1px -1px 2px #000, -1px -1px 2px #000',
-            textShadow: '-1px 1px 2px #000',
-          }}
-        >
-          {this.state.cards.length > 0 &&
-          (!this.props.isDealer || (this.state.cards.length >= 2 && this.state.cards[0].isFaceUp))
-            ? this.state.didStand
-              ? this.BestValue
-              : this.ValueString
-            : ''}
-        </p>
-        <div
-          style={{
-            position: 'relative',
-            width: `calc(${this.state.cards.length - 1} * 1.5em + 5em)`,
-          }}
-        >
-          {this.state.cards.length > 0 && this.recursiveRender(this.state.cards, true)}
-          {!this.props.isDealer && this.state.result !== HandResult.InProgress && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '-6px',
-                minWidth: 'calc(5em + 6px)',
-                // minWidth: '50%',
-                backgroundColor: 'black',
-                opacity: 0.9,
-                padding: '0.2em',
-                border: '1px solid gold',
-                borderRadius: '0.5em',
-                color: 'white',
-                textAlign: 'center',
-              }}
-            >
-              <span>{this.state.result.toUpperCase()}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  } */
 }
 
 export default Hand;

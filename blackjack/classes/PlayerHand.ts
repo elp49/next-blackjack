@@ -145,14 +145,6 @@ class PlayerHand extends Hand {
     this.didDoubleDowned = props.initialState ? props.initialState.didDoubleDowned : false;
     this.didSplit = props.initialState ? props.initialState.didSplit : false;
     this.didInsure = props.initialState ? props.initialState.didInsure : false;
-
-    this.acceptInsurance = this.acceptInsurance.bind(this);
-    this.doubleDown = this.doubleDown.bind(this);
-    this.split = this.split.bind(this);
-    this.isDecisionValid = this.isDecisionValid.bind(this);
-    this.calculateResult = this.calculateResult.bind(this);
-
-    // this.render = this.render.bind(this);
   }
 
   public acceptInsurance = (): void => {
@@ -228,18 +220,12 @@ class PlayerHand extends Hand {
     return isValid;
   };
 
-  // state shit made this a headache so use custom format
-  // prettier-ignore
   public calculateResult = (dealer: IHand): HandResult => {
-    console.log(`calculateResult()`)
+    console.log(`calculateResult()`);
     if (this.IsBlackjack) {
       if (dealer.IsBlackjack) {
         // then that sucks
         this.result = HandResult.Push;
-
-        /* if (this.didInsure) {
-          this.insurancePayout = this.OriginalWager;
-        } */
       }
 
       // winner winner chicken dinner
@@ -251,29 +237,30 @@ class PlayerHand extends Hand {
     // sucker!
     else if (dealer.IsBlackjack) {
       this.result = HandResult.Loss;
-
-      /* if (this.didInsure) {
-        this.insurancePayout = this.OriginalWager;
-      } */
     }
 
+    //
     else if (this.IsBust) {
       this.result = HandResult.Loss;
     }
 
+    //
     else if (dealer.IsBust) {
       this.result = HandResult.WinByTotal;
     }
 
+    //
     else if (this.didStand && dealer.didStand) {
       if (this.BestValue > dealer.BestValue) {
         this.result = HandResult.WinByTotal;
       }
 
+      //
       else if (this.BestValue == dealer.BestValue) {
         this.result = HandResult.Push;
       }
 
+      //
       else {
         this.result = HandResult.Loss;
       }
@@ -281,12 +268,12 @@ class PlayerHand extends Hand {
 
     // else hand is still in progress
 
-    console.log(`this.result: ${this.result}`)
+    console.log(`this.result: ${this.result}`);
     return this.result;
   };
 
   clone(): PlayerHand {
-    const clone = new PlayerHand({
+    return new PlayerHand({
       wager: this.wager,
       initialState: {
         cards: [...this.cards],
@@ -298,94 +285,7 @@ class PlayerHand extends Hand {
         didInsure: this.didInsure,
       },
     });
-    /* clone.cards = [...this.cards];
-    clone.didStand = this.didStand; */
-    /* clone.insurancePayout = this.insurancePayout;
-    clone.didDoubleDowned = this.didDoubleDowned;
-    clone.didSplit = this.didSplit;
-    clone.didInsure = this.didInsure;
-    clone.result = this.result; */
-    return clone;
   }
-
-  /* render() {
-    console.log('rendering player hand');
-    return <div className="row">{this.cards.map((c) => c.render())}</div>;
-  } */
 }
 
 export default PlayerHand;
-
-/*
-  public calculateResult = (dealer: IHand): HandResult => {
-    if (this.IsBlackjack) {
-      if (dealer.IsBlackjack) {
-        // then that sucks
-        this.setState({
-          result: HandResult.Push,
-        });
-
-        if (this.state.didInsure) {
-          this.setState({
-            insurancePayout: this.state.wager,
-          });
-        }
-      }
-
-      // winner winner chicken dinner
-      else {
-        this.setState({
-          result: HandResult.WinByBlackjack,
-        });
-      }
-    }
-
-    // sucker!
-    else if (dealer.IsBlackjack) {
-      this.setState({
-        result: HandResult.Loss,
-      });
-
-      if (this.state.didInsure) {
-        this.setState({
-          insurancePayout: this.state.wager,
-        });
-      }
-    }
-
-    else if (this.IsBust) {
-      this.setState({
-        result: HandResult.Loss,
-      });
-    }
-
-    else if (dealer.IsBust) {
-      this.setState({
-        result: HandResult.WinByTotal,
-      });
-    }
-
-    else if (this.didStand && dealer.DidStand) {
-      if (this.BestValue > dealer.BestValue) {
-        this.setState({
-          result: HandResult.WinByTotal,
-        });
-      }
-
-      else if (this.BestValue == dealer.BestValue) {
-        this.setState({
-          result: HandResult.Push,
-        });
-      }
-
-      else {
-        this.setState({
-          result: HandResult.Loss,
-        });
-      }
-    }
-
-    // else hand is still in progress
-
-    return this.state.result;
-  }; */

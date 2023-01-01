@@ -25,11 +25,6 @@ class Deck {
     if (props.nDecks > 0) this.cards = this.createDefaultDeck(props.nDecks);
     else this.cards = [];
     this.shuffle();
-
-    /* this.createDefaultDeck = this.createDefaultDeck.bind(this);
-    this.shuffle = this.shuffle.bind(this);
-    this.draw = this.draw.bind(this); */
-    // this.Render = this.Render.bind(this);
   }
 
   public createDefaultDeck(nDecks: number): Card[] {
@@ -39,17 +34,11 @@ class Deck {
     for (let deckIndex = 0; deckIndex < nDecks; deckIndex++)
       for (let index = 0; index < DECK_SIZE; index++) cards.push(new Card({ index, deckIndex, isFaceUp }));
 
-    /* deck.forEach((c) => {
-      console.log(`Deck ${c.deckIndex}: ${c.Rank} of ${c.Suit}`);
-    }); */
-
     return cards;
   }
 
   private getNDecks(originalNDecks: number, nCardTypeInDeck: number) {
     let nDecks = originalNDecks;
-    console.log(`originalNDecks: ${originalNDecks}`);
-    console.log(`nCardTypeInDeck: ${nCardTypeInDeck}`);
     while (nDecks * nCardTypeInDeck < DECK_SIZE) {
       console.log(`${nDecks * nCardTypeInDeck} < ${DECK_SIZE}`);
       nDecks *= 2;
@@ -116,7 +105,6 @@ class Deck {
   public draw(flipCard: boolean = true): Card {
     const c = this.cards.shift();
     if (flipCard) c.flip();
-    // console.log(`drew card: ${c.toString()}`);
     return c;
   }
 
@@ -126,16 +114,6 @@ class Deck {
     clone.cards = [...this.cards];
     return clone;
   }
-
-  /* public Render = (): JSX.Element => {
-    return (
-      <div className={styles.deck}>
-        {this.cards.map((c) => (
-          <div key={`${c.Rank}${c.Suit}`}>{c}</div>
-        ))}
-      </div>
-    );
-  }; */
 }
 
 export default Deck;
