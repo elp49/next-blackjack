@@ -1,6 +1,6 @@
 import { Button, Switch } from '@mui/material';
 
-type Configuration = {
+export type Configuration = {
   title: string;
   setting: [boolean, (value: boolean) => void];
   // setting: [boolean, Dispatch<SetStateAction<boolean>>];

@@ -5,6 +5,18 @@ import PlayerHand from './PlayerHand';
 
 const COOKIE_NET_WINNINGS = 'netWinnings';
 
+export interface IResultsProps {
+  initialState?: IResultsState;
+}
+
+export interface IResultsState {
+  msStartTime: number;
+  currentWinStreak: number;
+  longestWinStreak: number;
+  hands: PlayerHand[];
+  initialNetWinnings: number;
+}
+
 class Results {
   msStartTime: number;
   currentWinStreak: number;
@@ -71,19 +83,22 @@ class Results {
     return msToTime(Date.now() - this.msStartTime);
   }
 
-  constructor() {
-    this.msStartTime = Date.now();
-    this.currentWinStreak = 0;
-    this.longestWinStreak = 0;
-    this.hands = [];
+  constructor(props: IResultsProps) {
+    this.msStartTime = props.initialState ? props.initialState.msStartTime : Date.now();
+    this.currentWinStreak = props.initialState ? props.initialState.currentWinStreak : 0;
+    this.longestWinStreak = props.initialState ? props.initialState.longestWinStreak : 0;
+    this.hands = props.initialState ? props.initialState.hands : [];
 
-    // Get a cookie
-    const net = getCookie(COOKIE_NET_WINNINGS);
-    if (net) this.initialNetWinnings = atoi(net.toString());
-    else this.initialNetWinnings = 0;
+    if (props.initialState) {
+      this.initialNetWinnings = props.initialState.initialNetWinnings;
+    } else {
+      const net = getCookie(COOKIE_NET_WINNINGS);
+      if (net) this.initialNetWinnings = atoi(net.toString());
+      else this.initialNetWinnings = 0;
+    }
   }
 
-  public RecordHand(hand: PlayerHand): void {
+  public recordHand(hand: PlayerHand): void {
     this.hands.push(hand);
 
     // Win
@@ -103,7 +118,7 @@ class Results {
     setCookie(COOKIE_NET_WINNINGS, this.TotalNetWinnings);
   }
 
-  public Display(): void {
+  public display(): void {
     console.log(`Total Play Time\t\t${this.TotalPlayTime}`);
     console.log();
     console.log(`Total Won\t\t${this.TotalHandsWon}`);
@@ -121,6 +136,18 @@ class Results {
     console.log();
     console.log(`Current Win Streak\t${this.currentWinStreak}`);
     console.log(`Longest Win Streak\t${this.longestWinStreak}`);
+  }
+
+  public clone(): Results {
+    return new Results({
+      initialState: {
+        msStartTime: this.msStartTime,
+        currentWinStreak: this.currentWinStreak,
+        longestWinStreak: this.longestWinStreak,
+        hands: [...this.hands],
+        initialNetWinnings: this.initialNetWinnings,
+      },
+    });
   }
 }
 

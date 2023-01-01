@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import Panel from './Panel';
+import Panel from '../Panel';
+import SexyButton from '../SexyButton';
 import PlayerChips from './PlayerChips';
-import SexyButton from './SexyButton';
 import TableChips from './TableChips';
 
 export type Chip = {

@@ -1,6 +1,5 @@
-import Button from '@mui/material/Button';
+import Link from 'next/link';
 import styles from '../styles/index.module.css';
-import tableStyles from '../styles/table.module.css';
 
 function Home(): JSX.Element {
   return (
@@ -11,9 +10,9 @@ function Home(): JSX.Element {
           <h3>best of luck ;)</h3>
         </div>
         <div className="third column">
-          <Button href="/blackjack" variant="contained" size="large" className={tableStyles.button}>
-            Play
-          </Button>
+          <Link href="/blackjack" className={styles.sexyButton}>
+            Blackjack
+          </Link>
         </div>
         <div className="third column"></div>
       </div>

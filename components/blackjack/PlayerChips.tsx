@@ -1,6 +1,6 @@
 import { CSSProperties } from 'react';
-import styles from '../styles/table.module.css';
-import { range } from '../utils/utils';
+import styles from '../../styles/table.module.css';
+import { range } from '../../utils/utils';
 import { Chip } from './ChipSelector';
 
 type PlayerChipsProps = {

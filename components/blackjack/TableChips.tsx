@@ -1,4 +1,4 @@
-import styles from '../styles/table.module.css';
+import styles from '../../styles/table.module.css';
 import { Chip } from './ChipSelector';
 
 const CHIPS: Chip[][] = [

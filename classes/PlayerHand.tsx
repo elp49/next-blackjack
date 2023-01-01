@@ -1,5 +1,5 @@
 import Card from './Card';
-import Hand, { HandResult, IHand } from './Hand';
+import Hand, { HandResult, IHand, IHandState } from './Hand';
 
 export enum Decision {
   PlaceBet = 'PLACE BET',
@@ -14,29 +14,25 @@ export enum Decision {
   // Quit = 'QUIT',
 }
 
-/* interface IPlayerHandProps {
+export interface IPlayerHandProps {
   wager: number;
+  initialState?: IPlayerHandState;
 }
 
-interface IPlayerHandState {
-  wager: number;
-  insurancePayout: number;
+export interface IPlayerHandState extends IHandState {
+  // insurancePayout: number;
   didDoubleDowned: boolean;
   didSplit: boolean;
   didInsure: boolean;
-}
-
-class PlayerHand extends Hand<IPlayerHandState> { */
-interface IPlayerHandProps {
-  wager: number;
 }
 
 class PlayerHand extends Hand {
   wager: number;
-  insurancePayout: number;
+  // insurancePayout: number;
   didDoubleDowned: boolean;
   didSplit: boolean;
   didInsure: boolean;
+  didDealerHaveBlackjack: boolean;
 
   public get IsWin(): boolean {
     return this.result == HandResult.WinByTotal || this.result == HandResult.WinByBlackjack;
@@ -52,11 +48,6 @@ class PlayerHand extends Hand {
     return this.didDoubleDowned ? this.wager / 2 : this.wager;
   }
 
-  public get NetPayout(): number {
-    let net = this.Payout - this.wager;
-    if (this.didInsure) net += this.insurancePayout - this.wager / 2;
-    return net;
-  }
   public get Payout() {
     let multiplier: number;
 
@@ -78,7 +69,29 @@ class PlayerHand extends Hand {
         break;
     }
 
-    return this.wager * multiplier + this.insurancePayout;
+    return this.wager * multiplier + this.InsurancePayout;
+  }
+  public get NetPayout(): number {
+    return this.Payout - this.wager - this.InsurancePayout + this.NetInsurancePayout;
+  }
+
+  public get InsurancePayout(): number {
+    if (this.didInsure && this.didDealerHaveBlackjack) {
+      return this.OriginalWager * 1.5;
+    } else {
+      return 0;
+    }
+  }
+  public get NetInsurancePayout(): number {
+    if (this.didInsure) {
+      if (this.didDealerHaveBlackjack) {
+        return this.OriginalWager;
+      } else {
+        return -this.OriginalWager / 2;
+      }
+    } else {
+      return 0;
+    }
   }
 
   /// <summary>
@@ -93,6 +106,13 @@ class PlayerHand extends Hand {
       !this.IsBlackjack &&
       !this.IsTwentyOne
     );
+  }
+
+  /// <summary>
+  /// Can stand if no stand, dealt cards, and in progress.
+  /// </summary>
+  public get CanStand(): boolean {
+    return !this.didStand && this.WasDealtCards && this.result === HandResult.InProgress;
   }
 
   /// <summary>
@@ -118,13 +138,13 @@ class PlayerHand extends Hand {
   }
 
   constructor(props: IPlayerHandProps) {
-    super({ isDealer: false });
+    super({ initialState: props.initialState });
 
     this.wager = props.wager;
-    this.insurancePayout = 0;
-    this.didDoubleDowned = false;
-    this.didSplit = false;
-    this.didInsure = false;
+    // this.insurancePayout = props.initialState ? props.initialState.insurancePayout : 0;
+    this.didDoubleDowned = props.initialState ? props.initialState.didDoubleDowned : false;
+    this.didSplit = props.initialState ? props.initialState.didSplit : false;
+    this.didInsure = props.initialState ? props.initialState.didInsure : false;
 
     this.acceptInsurance = this.acceptInsurance.bind(this);
     this.doubleDown = this.doubleDown.bind(this);
@@ -139,6 +159,10 @@ class PlayerHand extends Hand {
     this.didInsure = true;
   };
 
+  public dealerHasBlackjack = (): void => {
+    this.didDealerHaveBlackjack = true;
+  };
+
   public doubleDown = (card: Card): void => {
     this.didDoubleDowned = true;
     this.wager = this.wager * 2;
@@ -148,23 +172,12 @@ class PlayerHand extends Hand {
   };
 
   public split = (): PlayerHand => {
-    if (!this.CanSplit)
-      throw new Error(
-        'Tried to split, but cannot. you fucked up. hope this helps :/\n' +
-          `Cards: ${this.cards}\n` +
-          `WasDealtCards=${this.WasDealtCards}\n` +
-          `!DidHit=${!this.DidHit}\n` +
-          `&& !DidStand=${!this.didStand}\n` +
-          `!IsBust=${!this.IsBust}\n` +
-          `!IsBlackjack=${!this.IsBlackjack}\n` +
-          `${this.cards[0].Rank}==${this.cards[1].Rank}: ${this.cards[0].Rank == this.cards[1].Rank}`
-      );
-
     const split = new PlayerHand({ wager: this.wager });
     split.addCard(this.cards.pop());
 
     this.didSplit = true;
     split.didSplit = true;
+
     return split;
   };
 
@@ -193,7 +206,7 @@ class PlayerHand extends Hand {
         break;
 
       case Decision.Stand:
-        isValid = !this.didStand && this.WasDealtCards && this.result === HandResult.InProgress;
+        isValid = this.CanStand;
         break;
 
       case Decision.DoubleDown:
@@ -218,14 +231,15 @@ class PlayerHand extends Hand {
   // state shit made this a headache so use custom format
   // prettier-ignore
   public calculateResult = (dealer: IHand): HandResult => {
+    console.log(`calculateResult()`)
     if (this.IsBlackjack) {
       if (dealer.IsBlackjack) {
         // then that sucks
         this.result = HandResult.Push;
 
-        if (this.didInsure) {
+        /* if (this.didInsure) {
           this.insurancePayout = this.OriginalWager;
-        }
+        } */
       }
 
       // winner winner chicken dinner
@@ -238,9 +252,9 @@ class PlayerHand extends Hand {
     else if (dealer.IsBlackjack) {
       this.result = HandResult.Loss;
 
-      if (this.didInsure) {
+      /* if (this.didInsure) {
         this.insurancePayout = this.OriginalWager;
-      }
+      } */
     }
 
     else if (this.IsBust) {
@@ -267,18 +281,30 @@ class PlayerHand extends Hand {
 
     // else hand is still in progress
 
+    console.log(`this.result: ${this.result}`)
     return this.result;
   };
 
   clone(): PlayerHand {
-    const clone = new PlayerHand({ wager: this.wager });
-    clone.cards = [...this.cards];
-    clone.result = this.result;
-    clone.didStand = this.didStand;
-    clone.insurancePayout = this.insurancePayout;
+    const clone = new PlayerHand({
+      wager: this.wager,
+      initialState: {
+        cards: [...this.cards],
+        result: this.result,
+        didStand: this.didStand,
+        // insurancePayout: this.insurancePayout,
+        didDoubleDowned: this.didDoubleDowned,
+        didSplit: this.didSplit,
+        didInsure: this.didInsure,
+      },
+    });
+    /* clone.cards = [...this.cards];
+    clone.didStand = this.didStand; */
+    /* clone.insurancePayout = this.insurancePayout;
     clone.didDoubleDowned = this.didDoubleDowned;
     clone.didSplit = this.didSplit;
     clone.didInsure = this.didInsure;
+    clone.result = this.result; */
     return clone;
   }
 

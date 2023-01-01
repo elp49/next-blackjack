@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from '../styles/card.module.css';
 import { ACE, FACE_CARDS, NUMBER_CARDS } from '../utils/constants';
 
@@ -100,14 +99,19 @@ export interface ICardProps {
   isFaceUp: boolean;
 }
 
-// interface ICardState {
-//   isFaceUp: boolean;
-// }
+/* interface ICardState {
+  isFaceUp: boolean;
+} */
 
-class Card extends React.Component {
+class Card {
+  //extends React.Component<ICardProps, ICardState> {
   private index: number;
   private deckIndex: number;
   isFaceUp: boolean;
+
+  public get Key(): string {
+    return `deck-${this.deckIndex}-card-${this.index}`;
+  }
 
   public get Rank(): string {
     return RANKS[this.index % 13];
@@ -142,26 +146,38 @@ class Card extends React.Component {
   }
 
   constructor(props: ICardProps) {
-    super(props);
-
+    /* this.state = {
+      isFaceUp: props.isFaceUp,
+    };
+ */
     this.index = props.index;
     this.deckIndex = props.deckIndex;
     this.isFaceUp = props.isFaceUp;
 
-    this.flip = this.flip.bind(this);
+    /* this.flip = this.flip.bind(this);
     this.toString = this.toString.bind(this);
-    this.recursiveRender = this.recursiveRender.bind(this);
+    this.getCardSuits = this.getCardSuits.bind(this); */
+    // this.render = this.render.bind(this);
   }
 
-  flip(): void {
-    // console.log('==========flipping card ===');
+  public flip(): void {
+    console.log('==========flipping card ===');
+
     this.isFaceUp = !this.isFaceUp;
-    // console.log('==========flipped ===');
+
+    /* this.state = {
+      ...this.state,
+      isFaceUp: !this.state.isFaceUp,
+    }; */
+
+    // this.setState({ isFaceUp: !this.state.isFaceUp });
+
+    console.log('==========flipped ===');
   }
 
-  toString = (): string => `${this.Rank} of ${this.Suit}`;
+  public toString = (): string => `${this.Rank} of ${this.Suit}`;
 
-  getCardSuits = (): JSX.Element => (
+  public getCardSuits = (): JSX.Element => (
     <div className={styles.cardSuits}>
       {suitPositions[this.index % 13].map((position, i) => {
         const { x, y, isMirrored } = position;
@@ -182,14 +198,15 @@ class Card extends React.Component {
     </div>
   );
 
-  recursiveRender(cards: Card[], isFirst: boolean): JSX.Element {
+  // Recursive render
+  /* render(cards: Card[], isFirst: boolean): JSX.Element {
     const key = `deck-${this.deckIndex}-card-${this.index}`;
     const grandchildren = [...cards];
     const child = grandchildren && grandchildren.length > 0 ? grandchildren.shift() : null;
 
     return (
       <div key={key} className={styles.card} style={{ color: this.Color, marginLeft: `${!isFirst && '1.5em'}` }}>
-        {this.isFaceUp ? (
+        {this.state.isFaceUp ? (
           <>
             {this.getCardSuits()}
             <div className={styles.cardTopLeft}>
@@ -200,14 +217,14 @@ class Card extends React.Component {
               <div className={styles.cardCornerRank}>{this.Rank}</div>
               <div className={styles.cardCornerSuit}>{this.Suit}</div>
             </div>
-            {child && child.recursiveRender(grandchildren, false)}
+            {child && child.render(grandchildren, false)}
           </>
         ) : (
-          <div className={styles.cardBack}>{child && child.recursiveRender(grandchildren, false)}</div>
+          <div className={styles.cardBack}>{child && child.render(grandchildren, false)}</div>
         )}
       </div>
     );
-  }
+  } */
 }
 
 export default Card;

@@ -13,3 +13,20 @@
   align-items: center;
   justify-content: center;
 }
+
+.sexyButton {
+  min-width: 7em;
+  font-family: serif;
+  color: white;
+  margin: 1em;
+  padding: 1em;
+  border-radius: 4px;
+  text-align: center;
+  background-image: linear-gradient(to bottom, maroon, #222);
+  background-image: linear-gradient(to bottom, #c27593, #ae4559, #96303f, #7d1b27, #640210, #4d0714, #360b13, #21080e);
+  text-shadow: -1px 1px 2px #000;
+}
+.disabled {
+  background-image: linear-gradient(to bottom, #4d0714, #360b13, #000);
+  opacity: 0.8;
+}
