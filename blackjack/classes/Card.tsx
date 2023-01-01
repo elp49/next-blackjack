@@ -1,5 +1,5 @@
-import styles from '../styles/card.module.css';
-import { ACE, FACE_CARDS, NUMBER_CARDS } from '../utils/constants';
+import styles from '../../styles/card.module.css';
+import { ACE, FACE_CARDS, NUMBER_CARDS } from '../../utils/constants';
 
 enum Color {
   Red = 'red',

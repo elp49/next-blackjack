@@ -1,6 +1,6 @@
-import Card from '../../classes/Card';
-import Hand, { HandResult } from '../../classes/Hand';
+import Card from '../../blackjack/classes/Card';
 import styles from '../../styles/card.module.css';
+import Hand, { HandResult } from '../classes/Hand';
 
 type HandComponentProps = {
   hand: Hand;

@@ -1,5 +1,5 @@
-import { DECK_SIZE } from '../utils/constants';
-import { getRandomInt } from '../utils/utils';
+import { DECK_SIZE } from '../../utils/constants';
+import { getRandomInt } from '../../utils/utils';
 import Card from './Card';
 
 interface IDeckProps {

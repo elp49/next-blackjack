@@ -1,5 +1,5 @@
 import { getCookie, setCookie } from 'cookies-next';
-import { atoi, divide, msToTime } from '../utils/utils';
+import { atoi, divide, msToTime } from '../../utils/utils';
 import { HandResult } from './Hand';
 import PlayerHand from './PlayerHand';
 

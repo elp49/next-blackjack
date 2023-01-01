@@ -1,4 +1,4 @@
-import { ACE, TEN, TWENTY_ONE } from '../utils/constants';
+import { ACE, TEN, TWENTY_ONE } from '../../utils/constants';
 import Card from './Card';
 
 export enum HandResult {

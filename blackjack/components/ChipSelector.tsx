@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Panel from '../Panel';
-import SexyButton from '../SexyButton';
+import Panel from '../../components/Panel';
+import SexyButton from '../../components/SexyButton';
 import PlayerChips from './PlayerChips';
 import TableChips from './TableChips';
 
