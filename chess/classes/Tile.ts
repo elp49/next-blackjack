@@ -1,20 +1,26 @@
 import { TilePosition } from '../components/BoardComponent';
-import { Piece } from './Piece';
+import Piece from './Piece';
 
 interface ITileProps {
+  index: number;
   position: TilePosition;
 }
 
-export class Tile {
+class Tile {
   private props: ITileProps;
   private piece: Piece; // Piece also has Tile reference
 
   public get Id(): string {
-    return `tile-${this.Position.x}-${this.Position.y}`;
+    return `tile-${this.props.index}-(${this.props.position.x},${this.props.position.y})`;
+  }
+
+  public get Index(): number {
+    return this.props.index;
   }
   public get Position(): TilePosition {
     return this.props.position;
   }
+
   public get Piece(): Piece {
     return this.piece;
   }
@@ -33,10 +39,13 @@ export class Tile {
 
   public setPiece(piece: Piece): void {
     // piece.setTile(this);
+    // console.log(`setPiece - ID: (${this.Id}), piece: (${piece})`);
     this.piece = piece;
   }
 
   public toString(): string {
-    return `Tile.toString(): {position:{x:${this.Position.x}, y:${this.Position.y}}, piece:${this.Piece}}`;
+    return `Tile.toString(): {position:{x:${this.props.position.x}, y:${this.props.position.y}}, piece:${this.piece}}`;
   }
 }
+
+export default Tile;
