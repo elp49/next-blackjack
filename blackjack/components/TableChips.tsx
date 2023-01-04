@@ -33,7 +33,7 @@ export default function TableChips({ addChip, disabled }: TableChipsProps): JSX.
         disabled={disabled}
         className={styles.chip}
         style={{
-          backgroundImage: `url(/images/chip-${color}.png)`,
+          backgroundImage: `url(/images/blackjack/chip-${color}.png)`,
           margin: '1em',
         }}
       >

@@ -50,7 +50,7 @@ export default function PlayerChips({ chips, removeChip, disabled }: PlayerChips
     const style: CSSProperties = {
       position: 'relative',
       fontSize: '1.3rem',
-      backgroundImage: `url(/images/chip-${color}.png)`,
+      backgroundImage: `url(/images/blackjack/chip-${color}.png)`,
       transform: 'translate(0,-15%)',
     };
 
