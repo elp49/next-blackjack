@@ -20,6 +20,9 @@ export const BLACK_PIECE_UNICODES = {
 export const ROWS_PAWN = [2, 7];
 export const ROWS_SPECIAL = [1, 8];
 
+/*
+ * windows/android/ios render chess unicode differently
+ * switching to pngs
 export enum PieceEnum {
   Pawn = '\u265F',
   Knight = '\u265E',
@@ -27,6 +30,15 @@ export enum PieceEnum {
   Rook = '\u265C',
   Queen = '\u265B',
   King = '\u265A',
+} */
+
+export enum PieceEnum {
+  Pawn = 'pawn',
+  Knight = 'knight',
+  Bishop = 'bishop',
+  Rook = 'rook',
+  Queen = 'queen',
+  King = 'king',
 }
 
 export interface IPieceProps {

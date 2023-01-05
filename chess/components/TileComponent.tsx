@@ -28,7 +28,7 @@ function TileComponent({ tile, onClick, valid, immovable }: TileProps): JSX.Elem
         background: 'radial-gradient(circle, rgba(170,6,6,1) 0%, rgba(253,29,29,1) 50%, rgba(170,6,6,1) 100%)',
       });
       setTimeout(() => {
-        console.log(`highlightColorTimeout, setting null`);
+        // console.log(`highlightColorTimeout, setting null`);
         setHighlightStyles({
           background: '',
         });
@@ -44,7 +44,9 @@ function TileComponent({ tile, onClick, valid, immovable }: TileProps): JSX.Elem
           <h1 className={`bottomRight ${styles.position}`}>{tile.Position.x}</h1>
         )}
         {tile.Piece && <PieceComponent piece={tile.Piece} />}
-        {valid && <div className={styles.validDot}></div>}
+        {valid && (
+          <div className={`${styles.validTile} ${tile.Piece ? styles.validTileOccupied : styles.validTileEmpty}`}></div>
+        )}
       </div>
     </div>
   );

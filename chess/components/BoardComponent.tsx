@@ -13,17 +13,6 @@ import Tile from '../classes/Tile';
 import PieceComponent from './PieceComponent';
 import TileComponent from './TileComponent';
 
-export type TilePosition = {
-  x: string;
-  y: number;
-};
-
-type PieceMoved = {
-  iFrom: number;
-  iTo: number;
-  wasPieceTaken: boolean;
-};
-
 const knightMutations = [
   { xChange: -1, yChange: -2 },
   { xChange: 1, yChange: -2 },
@@ -87,6 +76,17 @@ const getPieceType = (iRow: number, iCol: number, isPlayerWhite: boolean): Piece
   return type;
 };
 
+export type TilePosition = {
+  x: string;
+  y: number;
+};
+
+type PieceMoved = {
+  iFrom: number;
+  iTo: number;
+  wasPieceTaken: boolean;
+};
+
 /*
  *
  *
@@ -96,8 +96,6 @@ const getPieceType = (iRow: number, iCol: number, isPlayerWhite: boolean): Piece
  *
  *
  */
-
-export const isPositionEqual = (a: TilePosition, b: TilePosition) => a.x === b.x && a.y === b.y;
 
 type BoardComponentProps = {
   isPlayerWhite: boolean;
@@ -165,10 +163,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
    */
 
   const movePiece = (newTile: Tile) => {
-    console.log();
-    console.log();
-    console.log(`  - movePiece`);
-    // TILE_POSITIONS[yNew][x];
     let didMove = false;
 
     // new tile is empty or the piece on that tile doesnt belong to same player as other piece
@@ -177,7 +171,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
       newTile.Index !== activePiece.Tile.Index &&
       (isDebugMode || iValidTiles.includes(newTile.Index))
     ) {
-      console.log(`!newTile.Piece || activePiece.IsWhite !== newTile.Piece.IsWhite`);
       const newTiles = [...tiles];
       const newPreviousMoves = [...previousMoves];
       const newDisposedPieces = [...disposedPieces];
@@ -194,7 +187,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
         // move piece
         const piece = newTiles[iFrom].popPiece();
         piece.setTile(newTiles[iTo]);
-        console.log(`adding move {iFrom:${iFrom}, iTo:${iTo}}`);
         newPreviousMoves.push({ iFrom, iTo, wasPieceTaken });
       };
 
@@ -208,7 +200,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
         let iRandPiece: number;
         do {
           iRandPiece = getRandomInt(opponentPieces.length - 1);
-          console.log(`iRandPiece: ${iRandPiece}`);
         } while (iValidTiles[iRandPiece].length === 0);
         const iRandValidTile: number = getRandomInt(iValidTiles[iRandPiece].length - 1);
 
@@ -224,7 +215,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
     setActivePiece(null);
     setValidTiles([]);
     setImmovablePiece(-1);
-    console.log(`else`);
 
     return didMove;
   };
@@ -233,7 +223,7 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
     console.log(`onTileClick(tile:${tile}),  {activePiece: ${activePiece}}`);
 
     // move piece to new tile
-    if (activePiece && activePiece.Tile.Index !== iImmovablePiece) {
+    if (activePiece && (activePiece.Tile.Index !== iImmovablePiece || isDebugMode)) {
       console.log('activePiece !== null && !isImmovable');
       const didMove = movePiece(tile);
       // setActivePiece(null);
@@ -264,9 +254,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
           if (nextTile) {
             // empty tile or the piece on that tile is not the players
             if (!nextTile.Piece || nextTile.Piece.IsWhite !== piece.IsWhite) {
-              // console.log(` - position: {${position.x}, ${position.y}}`);
-              // console.log(` - position: {${nextTile.Position.x}, ${nextTile.Position.y}}`);
-              // console.log(`pushing index: ${nextTile.Index}`);
               iValidTiles.push(nextTile.Index);
             }
             // return value: will continue evaluating tiles in this direction?
@@ -284,7 +271,7 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
 
       switch (piece.Type) {
         case PieceEnum.Pawn:
-          console.log(`case PieceEnum.Pawn:`);
+          // console.log(`case PieceEnum.Pawn:`);
 
           const STARTING_PAWN_Y_AXIS = (isPieceWhite: boolean) => {
             if (isPieceWhite) return 2;
@@ -328,34 +315,32 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
           break;
 
         case PieceEnum.Knight:
-          console.log(`case PieceEnum.Knight:`);
+          // console.log(`case PieceEnum.Knight:`);
           knightMutations.forEach(({ xChange, yChange }) => calculateValidTiles(xChange, yChange, false));
           break;
 
         case PieceEnum.Bishop:
-          console.log(`case PieceEnum.Bishop:`);
+          // console.log(`case PieceEnum.Bishop:`);
           bishopMutations.forEach(({ xChange, yChange }) => calculateValidTiles(xChange, yChange));
           break;
 
         case PieceEnum.Rook:
-          console.log(`case PieceEnum.Rook:`);
+          // console.log(`case PieceEnum.Rook:`);
           rookMutations.forEach(({ xChange, yChange }) => calculateValidTiles(xChange, yChange));
           break;
 
         case PieceEnum.Queen:
-          console.log(`case PieceEnum.Queen:`);
-          bishopMutations.concat(rookMutations).forEach(({ xChange, yChange }, i) => {
-            console.log(`queen mutation #${i}`);
-
-            calculateValidTiles(xChange, yChange);
-          });
+          // console.log(`case PieceEnum.Queen:`);
+          bishopMutations
+            .concat(rookMutations)
+            .forEach(({ xChange, yChange }, i) => calculateValidTiles(xChange, yChange));
           break;
 
         case PieceEnum.King:
-          console.log(`case PieceEnum.King:`);
-          bishopMutations.concat(rookMutations).forEach(({ xChange, yChange }, i) => {
-            calculateValidTiles(xChange, yChange, false);
-          });
+          // console.log(`case PieceEnum.King:`);
+          bishopMutations
+            .concat(rookMutations)
+            .forEach(({ xChange, yChange }, i) => calculateValidTiles(xChange, yChange, false));
           break;
 
         default:
@@ -370,53 +355,41 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
 
   useEffect(() => {
     if (activePiece) {
-      console.log(`activePiece - - - ${activePiece}`);
       const newValidTiles = getValidTiles(activePiece);
-
-      console.log(`newValidTiles:  [${newValidTiles.join(', ')}].length = ${newValidTiles.length}`);
-      console.log();
-      setValidTiles(newValidTiles);
       const isActivePieceImmovable = newValidTiles.length === 0;
+
+      setValidTiles(newValidTiles);
       if (isActivePieceImmovable) {
         setImmovablePiece(activePiece.Tile.Index);
-        setActivePiece(null);
+        if (!isDebugMode) {
+          setActivePiece(null);
+        }
       } else {
         setImmovablePiece(-1);
       }
     }
-  }, [xAxis, activePiece, getTile, isPlayerWhite, tiles, yAxis, getValidTiles]);
+  }, [xAxis, activePiece, getTile, isPlayerWhite, tiles, yAxis, getValidTiles, isDebugMode]);
 
   const setDefaultBoard = useCallback(() => {
     console.log(`setDefaultBoard - isPlayerWhite:${isPlayerWhite}`);
     const tiles: Tile[] = [];
 
     yAxis.forEach((y, iRow) => {
-      // console.log(`tiles.length: ${tiles.length}`);
       xAxis.forEach((x, iCol) => {
-        // console.log(`${x},${y}`);
-        // let piece: Piece;
         const tile = new Tile({ position: { x, y }, index: iRow * BOARD_LENGTH + iCol });
 
-        // console.log(`x:${position.x}, y:${position.y}`);
         if (iRow <= 1) {
           new Piece({ isWhite: !isPlayerWhite, type: getPieceType(iRow, iCol, isPlayerWhite), tile });
         } else if (iRow >= 6) {
           new Piece({ isWhite: isPlayerWhite, type: getPieceType(iRow, iCol, isPlayerWhite), tile });
         }
-        // skip middle tiles
 
-        // console.log(`iTile:${tiles.indexOf(tile)}`);
-        // return tile;
         tiles.push(tile);
       });
     });
-    // console.log(`tiles.length: ${tiles.length}`);
 
     setTiles(tiles);
   }, [isPlayerWhite, xAxis, yAxis]);
-
-  // const [reset, setReset] = useState<boolean>(true);
-  // const resetBoard = () => setReset(true);
 
   const resetBoard = useCallback(() => {
     // if (reset) {
@@ -427,9 +400,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
         '/*                                                  |\n' +
         '/* ________________________________________________ |'
     );
-    // console.log(`xAxis: [${xAxis.join(', ')}].length = ${xAxis.length}`);
-    // console.log(`yAxis: [${yAxis.join(', ')}].length = ${yAxis.length}`);
-    // const tiles = createDefaultBoard(isPlayerWhite);
 
     setDefaultBoard();
 
@@ -440,8 +410,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
     setPreviousMoves([]);
 
     setIsGamePaused(false);
-    // setReset(false);
-    // }
   }, [setDefaultBoard]);
 
   /*
@@ -476,7 +444,9 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
         {disposedPieces
           .filter((x) => x.IsPlayersPiece(isPlayerWhite))
           .map((x, i) => (
-            <PieceComponent key={`disposed-player-piece-${i}`} piece={x} />
+            <div key={`disposed-player-piece-${i}`} className={styles.piece}>
+              <PieceComponent piece={x} />
+            </div>
           ))}
       </div>
 
@@ -487,7 +457,6 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
             tile={tile}
             onClick={onTileClick}
             valid={iValidTiles.includes(i)}
-            // valid={iActivePiece && iValidTiles.includes(i)}
             immovable={i === iImmovablePiece}
           />
         ))}
@@ -496,7 +465,9 @@ function BoardComponent({ isPlayerWhite, xAxis, yAxis, isDebugMode = false }: Bo
         {disposedPieces
           .filter((x) => !x.IsPlayersPiece(isPlayerWhite))
           .map((x, i) => (
-            <PieceComponent key={`disposed-opponent-piece-${i}`} piece={x} />
+            <div key={`disposed-opponent-piece-${i}`} className={styles.piece}>
+              <PieceComponent piece={x} />
+            </div>
           ))}
       </div>
       <div id="bottom" className="row" style={{ width: '100%' }}>
