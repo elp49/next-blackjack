@@ -79,10 +79,8 @@ class Piece {
     return `{isWhite:${this.IsWhite},  type:${this.Type}}`;
   }
 
-  public clone(): Piece {
-    const clone = new Piece({ ...this.props });
-    clone.setTile(this.props.tile);
-    return clone;
+  public clone(tile: Tile): Piece {
+    return new Piece({ ...this.props, tile });
   }
 }
 

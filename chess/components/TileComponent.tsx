@@ -9,26 +9,27 @@ export type TileProps = {
   onClick: (tile: Tile) => void;
   valid: boolean;
   immovable: boolean;
+  isDebugMode: boolean;
 };
 
-function TileComponent({ tile, onClick, valid, immovable }: TileProps): JSX.Element {
+function TileComponent({ tile, onClick, valid, immovable, isDebugMode }: TileProps): JSX.Element {
   const isWhiteTile = ((tile.Index / BOARD_LENGTH) | 0) % 2 === 0 ? tile.Index % 2 === 0 : tile.Index % 2 === 1;
   // const [highlightColor, setHighlightColor] = useState<string>('');
   const [highlightStyles, setHighlightStyles] = useState<React.CSSProperties>({});
 
   const clicked = () => {
-    // console.log(`from Tile Component:\npiece:${piece}`);
+    // log(`from Tile Component:\npiece:${piece}`);
     onClick(tile);
   };
 
   useEffect(() => {
     if (immovable) {
-      // console.log(`Tile #${i} is immovable`);
+      // log(`Tile #${i} is immovable`);
       setHighlightStyles({
         background: 'radial-gradient(circle, rgba(170,6,6,1) 0%, rgba(253,29,29,1) 50%, rgba(170,6,6,1) 100%)',
       });
       setTimeout(() => {
-        // console.log(`highlightColorTimeout, setting null`);
+        // log(`highlightColorTimeout, setting null`);
         setHighlightStyles({
           background: '',
         });
@@ -43,6 +44,7 @@ function TileComponent({ tile, onClick, valid, immovable }: TileProps): JSX.Elem
         {tile.Index >= BOARD_LENGTH * (BOARD_LENGTH - 1) && (
           <h1 className={`bottomRight ${styles.position}`}>{tile.Position.x}</h1>
         )}
+        {isDebugMode && <h1 className={`topRight ${styles.position}`}>{tile.Index}</h1>}
         {tile.Piece && <PieceComponent piece={tile.Piece} />}
         {valid && (
           <div className={`${styles.validTile} ${tile.Piece ? styles.validTileOccupied : styles.validTileEmpty}`}></div>

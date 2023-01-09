@@ -1,6 +1,7 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import { Button } from '@mui/material';
+import { log } from '../utils/utils';
 
 type PromptProps = {
   promptText: string;
@@ -10,11 +11,11 @@ type PromptProps = {
 
 export default function Prompt({ promptText, respond, isPromptActive }: PromptProps): JSX.Element {
   const yes = () => {
-    console.log('yes');
+    log('yes');
     respond(true);
   };
   const no = () => {
-    console.log('no');
+    log('no');
 
     respond(false);
   };

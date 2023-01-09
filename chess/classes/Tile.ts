@@ -39,12 +39,20 @@ class Tile {
 
   public setPiece(piece: Piece): void {
     // piece.setTile(this);
-    // console.log(`setPiece - ID: (${this.Id}), piece: (${piece})`);
+    // log(`setPiece - ID: (${this.Id}), piece: (${piece})`);
     this.piece = piece;
   }
 
   public toString(): string {
     return `Tile.toString(): {position:{x:${this.props.position.x}, y:${this.props.position.y}}, piece:${this.piece}}`;
+  }
+
+  public clone(): Tile {
+    const clone = new Tile({ ...this.props });
+    if (this.piece) {
+      clone.piece = this.piece.clone(clone);
+    }
+    return clone;
   }
 }
 

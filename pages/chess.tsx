@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import BoardComponent from '../chess/components/BoardComponent';
 import Layout from '../components/Layout/Layout';
 import Settings, { Configuration } from '../components/Layout/Settings';
-import { range } from '../utils/utils';
+import { log, range } from '../utils/utils';
 
 export const BOARD_LENGTH = 8;
 
@@ -30,7 +30,7 @@ function Chess({}: ChessProps): JSX.Element {
   };
 
   useEffect(() => {
-    console.log('Bootstrapping cookies...');
+    log('Bootstrapping cookies...');
     // Bootstrap cookies
     if (hasCookie(COOKIE_COLOR)) {
       const isPlayerWhite = getCookie(COOKIE_COLOR) as boolean;
@@ -60,11 +60,11 @@ function Chess({}: ChessProps): JSX.Element {
     if (isPlayerWhite) {
       setXAxis(X_AXIS_VALUES);
       setYAxis(Y_AXIS_VALUES.slice().reverse());
-      console.log(`Y_AXIS_VALUES.reverse(): [${Y_AXIS_VALUES.slice().reverse().join(', ')}]`);
+      log(`Y_AXIS_VALUES.reverse(): [${Y_AXIS_VALUES.slice().reverse().join(', ')}]`);
     } else {
       setXAxis(X_AXIS_VALUES.slice().reverse());
       setYAxis(Y_AXIS_VALUES);
-      console.log(`X_AXIS_VALUES.reverse(): [${X_AXIS_VALUES.slice().reverse().join(', ')}]`);
+      log(`X_AXIS_VALUES.reverse(): [${X_AXIS_VALUES.slice().reverse().join(', ')}]`);
     }
   }, [isPlayerWhite]);
 

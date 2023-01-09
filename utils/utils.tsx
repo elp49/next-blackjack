@@ -5,7 +5,18 @@ export const range = (start: number, count: number) =>
     return i + start;
   });
 
-export const getRandomInt = (max) => Math.floor(Math.random() * max);
+export function getRandomInt(min: number, max: number) {
+  console.log(`getRandomInt(min:${min}, max:${max})`);
+  let r = Math.random();
+  console.log(`rand generated: ${r}`);
+  r = r * (max - min) + min;
+
+  console.log(`rand adjusted: ${r}`);
+  r = Math.floor(r);
+  console.log(`rand floor: ${r}`);
+  return r;
+}
+// export const getRandomInt = (max) => Math.floor(Math.random() * max);
 
 export const divide = (value: number, dividedBy: number) => (dividedBy === 0 ? 0 : value / dividedBy);
 
@@ -28,6 +39,11 @@ export function isArrayEqual(a, b, orderMatters: boolean = false): boolean {
   }
 
   return isEqual;
+}
+
+var logCount = 0;
+export function log(text: string) {
+  console.log(`${++logCount}.\t${text}`);
 }
 
 /**
