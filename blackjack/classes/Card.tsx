@@ -1,4 +1,5 @@
 import { ACE, FACE_CARDS, NUMBER_CARDS } from '../../utils/constants';
+import { log } from '../../utils/utils';
 
 enum Color {
   Red = 'red',
@@ -61,11 +62,11 @@ class Card {
   }
 
   public flip(): void {
-    console.log('==========flipping card ===');
+    log('==========flipping card ===');
 
     this.isFaceUp = !this.isFaceUp;
 
-    console.log('==========flipped ===');
+    log('==========flipped ===');
   }
 
   public toString = (): string => `${this.Rank} of ${this.Suit}`;

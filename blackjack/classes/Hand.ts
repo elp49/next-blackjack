@@ -1,4 +1,5 @@
 import { ACE, TEN, TWENTY_ONE } from '../../utils/constants';
+import { log } from '../../utils/utils';
 import Card from './Card';
 
 export enum HandResult {
@@ -91,7 +92,7 @@ class Hand implements IHand {
   }
 
   public clone(): Hand {
-    console.log(`Cloning hand...`);
+    log(`Cloning hand...`);
     const clone = new Hand({
       initialState: {
         cards: [...this.cards],

@@ -1,3 +1,4 @@
+import { log } from '../../utils/utils';
 import Card from './Card';
 import Hand, { HandResult, IHand, IHandState } from './Hand';
 
@@ -221,7 +222,7 @@ class PlayerHand extends Hand {
   };
 
   public calculateResult = (dealer: IHand): HandResult => {
-    console.log(`calculateResult()`);
+    log(`calculateResult()`);
     if (this.IsBlackjack) {
       if (dealer.IsBlackjack) {
         // then that sucks
@@ -268,7 +269,7 @@ class PlayerHand extends Hand {
 
     // else hand is still in progress
 
-    console.log(`this.result: ${this.result}`);
+    log(`this.result: ${this.result}`);
     return this.result;
   };
 

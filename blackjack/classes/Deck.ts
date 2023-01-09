@@ -1,5 +1,5 @@
 import { DECK_SIZE } from '../../utils/constants';
-import { getRandomInt } from '../../utils/utils';
+import { getRandomInt, log } from '../../utils/utils';
 import Card from './Card';
 
 interface IDeckProps {
@@ -10,12 +10,12 @@ class Deck {
   private cards: Card[];
 
   public get RemainingCount(): number {
-    console.log(`remaining count: ${this.cards.length}`);
+    log(`remaining count: ${this.cards.length}`);
     return this.cards.length;
   }
 
   constructor(props: IDeckProps) {
-    console.log(' ==== NEW DECK ====');
+    log(' ==== NEW DECK ====');
 
     // this.cards = this.allAces(nDecks);
     // this.cards = this.allTens(nDecks);
@@ -28,7 +28,7 @@ class Deck {
   }
 
   public createDefaultDeck(nDecks: number): Card[] {
-    console.log(`Creating ${nDecks} decks...`);
+    log(`Creating ${nDecks} decks...`);
     const cards: Card[] = [];
     const isFaceUp = false;
     for (let deckIndex = 0; deckIndex < nDecks; deckIndex++)
@@ -40,7 +40,7 @@ class Deck {
   private getNDecks(originalNDecks: number, nCardTypeInDeck: number) {
     let nDecks = originalNDecks;
     while (nDecks * nCardTypeInDeck < DECK_SIZE) {
-      console.log(`${nDecks * nCardTypeInDeck} < ${DECK_SIZE}`);
+      log(`${nDecks * nCardTypeInDeck} < ${DECK_SIZE}`);
       nDecks *= 2;
     }
     return nDecks;
@@ -50,7 +50,7 @@ class Deck {
   public allTens(nDecks: number): Card[] {
     const NUM_TENS_IN_DECK = 16;
     const n = this.getNDecks(nDecks, NUM_TENS_IN_DECK);
-    console.log(`Creating ${n} decks...`);
+    log(`Creating ${n} decks...`);
     const deck: Card[] = [];
     const isFaceUp = false;
     for (let deckIndex = 0; deckIndex < n; deckIndex++)
@@ -66,7 +66,7 @@ class Deck {
   public allAces(nDecks: number): Card[] {
     const NUM_ACES_IN_DECK = 4;
     const n = this.getNDecks(nDecks, NUM_ACES_IN_DECK);
-    console.log(`Creating ${n} decks...`);
+    log(`Creating ${n} decks...`);
     const deck: Card[] = [];
     const isFaceUp = false;
     for (let deckIndex = 0; deckIndex < n; deckIndex++)
@@ -82,7 +82,7 @@ class Deck {
   public tensAndAces(nDecks: number): Card[] {
     const NUM_TEN_AND_ACES_IN_DECK = 20;
     const n = this.getNDecks(nDecks, NUM_TEN_AND_ACES_IN_DECK);
-    console.log(`Creating ${n} decks...`);
+    log(`Creating ${n} decks...`);
     const deck: Card[] = [];
     const isFaceUp = false;
     for (let deckIndex = 0; deckIndex < n; deckIndex++)
@@ -97,7 +97,7 @@ class Deck {
   public shuffle(): void {
     // Fisher-Yates shuffle
     for (let i = this.cards.length - 1; i > 0; i--) {
-      const iRand = getRandomInt(i);
+      const iRand = getRandomInt(1, i + 1) - 1;
       [this.cards[iRand], this.cards[i]] = [this.cards[i], this.cards[iRand]];
     }
   }
@@ -109,7 +109,7 @@ class Deck {
   }
 
   public clone(): Deck {
-    console.log(`Cloning deck...`);
+    log(`Cloning deck...`);
     const clone = new Deck({ nDecks: 0 });
     clone.cards = [...this.cards];
     return clone;

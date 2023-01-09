@@ -6,15 +6,7 @@ export const range = (start: number, count: number) =>
   });
 
 export function getRandomInt(min: number, max: number) {
-  console.log(`getRandomInt(min:${min}, max:${max})`);
-  let r = Math.random();
-  console.log(`rand generated: ${r}`);
-  r = r * (max - min) + min;
-
-  console.log(`rand adjusted: ${r}`);
-  r = Math.floor(r);
-  console.log(`rand floor: ${r}`);
-  return r;
+  return Math.floor(Math.random() * (max - min) + min);
 }
 // export const getRandomInt = (max) => Math.floor(Math.random() * max);
 
@@ -42,8 +34,8 @@ export function isArrayEqual(a, b, orderMatters: boolean = false): boolean {
 }
 
 var logCount = 0;
-export function log(text: string) {
-  console.log(`${++logCount}.\t${text}`);
+export function log(text?: string) {
+  console.log(`${++logCount}.\t${text && text}`);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { getCookie, setCookie } from 'cookies-next';
-import { atoi, divide, msToTime } from '../../utils/utils';
+import { atoi, divide, log, msToTime } from '../../utils/utils';
 import { HandResult } from './Hand';
 import PlayerHand from './PlayerHand';
 
@@ -119,23 +119,23 @@ class Results {
   }
 
   public display(): void {
-    console.log(`Total Play Time\t\t${this.TotalPlayTime}`);
-    console.log();
-    console.log(`Total Won\t\t${this.TotalHandsWon}`);
-    console.log(`Total Lost\t\t${this.TotalHandsLost}`);
-    console.log(`Total Pushed\t\t${this.TotalHandsPushed}`);
-    console.log(`Total Played\t\t${this.TotalHandsPlayed}`);
-    console.log();
-    console.log(`Average Hands Won\t${this.AverageHandsWon}%`);
-    console.log(`Average Hands Lost\t${this.AverageHandsLost}%`);
-    console.log();
-    console.log(`Total Wagered\t\t${this.TotalWagered}`);
-    console.log(`Total Winnings\t\t${this.TotalWinnings}`);
-    console.log(`Total Losses\t\t${this.TotalLosses}`);
-    console.log(`Total Net Winnings\t${this.TotalNetWinnings}`);
-    console.log();
-    console.log(`Current Win Streak\t${this.currentWinStreak}`);
-    console.log(`Longest Win Streak\t${this.longestWinStreak}`);
+    log(`Total Play Time\t\t${this.TotalPlayTime}`);
+    log();
+    log(`Total Won\t\t${this.TotalHandsWon}`);
+    log(`Total Lost\t\t${this.TotalHandsLost}`);
+    log(`Total Pushed\t\t${this.TotalHandsPushed}`);
+    log(`Total Played\t\t${this.TotalHandsPlayed}`);
+    log();
+    log(`Average Hands Won\t${this.AverageHandsWon}%`);
+    log(`Average Hands Lost\t${this.AverageHandsLost}%`);
+    log();
+    log(`Total Wagered\t\t${this.TotalWagered}`);
+    log(`Total Winnings\t\t${this.TotalWinnings}`);
+    log(`Total Losses\t\t${this.TotalLosses}`);
+    log(`Total Net Winnings\t${this.TotalNetWinnings}`);
+    log();
+    log(`Current Win Streak\t${this.currentWinStreak}`);
+    log(`Longest Win Streak\t${this.longestWinStreak}`);
   }
 
   public clone(): Results {
