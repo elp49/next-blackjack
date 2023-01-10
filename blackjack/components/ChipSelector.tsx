@@ -44,7 +44,11 @@ export default function ChipSelector({ deal, disabled }: ChipSelectorProps): JSX
         <PlayerChips chips={chips} removeChip={removeChip} disabled={disabled} />
       </div>
       <Panel info={['Wager', `$${wager}`]} />
-      <div id="chips" className="third column" style={{ justifyContent: 'space-evenly', padding: '0 4em 0 4em' }}>
+      <div
+        id="chips"
+        className="third column"
+        style={{ justifyContent: 'space-evenly', maxHeight: '18em', padding: '0 4em 0 4em' }}
+      >
         <TableChips addChip={addChip} disabled={disabled} />
       </div>
       <div className="tenth row outline">
