@@ -1,75 +1,28 @@
+import { getCookie, hasCookie } from 'cookies-next';
 import type { AppProps } from 'next/app';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import '../styles/globals.css';
+import { log } from '../utils/utils';
 
-/* const COOKIE_OFFER_INSURANCE = 'offerInsurance';
-const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
-const COOKIE_SHOW_COUNT = 'showCount';
+export const COOKIE_ENABLE_COOKIES = 'enableCookies';
 
-export type AppSettings = {
-  disabled: boolean;
-  offerInsurance: boolean;
-  dealerHitSoft17: boolean;
-  showRunningCount: boolean;
-}; */
+export type GlobalConfig = {
+  cookiesConfig: [boolean, Dispatch<SetStateAction<boolean>>];
+};
 
 const BlackjackWebApp = ({ Component, pageProps }: AppProps) => {
-  /* const [didBootstrapCookies, setDidBootstrapCookies] = useState<boolean>(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-
-  // Cookies
-  const [offerInsurance, setOfferInsurance] = useState<boolean>(true);
-  const [dealerHitSoft17, setDealerHitSoft17] = useState<boolean>(false);
-  const [showRunningCount, setShowRunningCount] = useState<boolean>(false);
-
-  const closeSettings = () => {
-    setIsSettingsOpen(false);
-
-    // Update cookies.
-    setCookie(COOKIE_OFFER_INSURANCE, offerInsurance);
-    setCookie(COOKIE_SOFT_SEVENTEEN, dealerHitSoft17);
-    setCookie(COOKIE_SHOW_COUNT, showRunningCount);
-  };
+  const [isCookiesEnabled, setIsCookiesEnabled] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!didBootstrapCookies) {
-      if (hasCookie(COOKIE_OFFER_INSURANCE)) {
-        const offer = getCookie(COOKIE_OFFER_INSURANCE) as boolean;
-        setOfferInsurance(offer);
-      }
-
-      if (hasCookie(COOKIE_SOFT_SEVENTEEN)) {
-        const hitSoft = getCookie(COOKIE_SOFT_SEVENTEEN) as boolean;
-        setDealerHitSoft17(hitSoft);
-      }
-
-      if (hasCookie(COOKIE_SHOW_COUNT)) {
-        const showCount = getCookie(COOKIE_SHOW_COUNT) as boolean;
-        setShowRunningCount(showCount);
-      }
-
-      setDidBootstrapCookies(true);
+    log('Bootstrapping GLOBAL cookies...');
+    if (hasCookie(COOKIE_ENABLE_COOKIES)) {
+      // Bootstrap cookies
+      const isCookiesEnabled = getCookie(COOKIE_ENABLE_COOKIES) as boolean;
+      setIsCookiesEnabled(isCookiesEnabled);
     }
-  }, [didBootstrapCookies]); */
+  }, []);
 
-  return <Component {...pageProps} />;
-  {
-    /* <Layout settings={[isSettingsOpen, setIsSettingsOpen]}>
-    {isSettingsOpen && (
-      <Settings
-        configs={[
-          { title: 'Offer Insurance', setting: [offerInsurance, setOfferInsurance] },
-          { title: 'Dealer Hits Soft 17', setting: [dealerHitSoft17, setDealerHitSoft17] },
-          { title: 'Show Running Count', setting: [showRunningCount, setShowRunningCount] },
-        ]}
-        onClose={closeSettings}
-      />
-    )}
-    <Component
-      {...pageProps}
-      appSettings={{ disabled: isSettingsOpen, offerInsurance, dealerHitSoft17, showRunningCount }}
-    />
-  </Layout> */
-  }
+  return <Component {...pageProps} cookiesConfig={[isCookiesEnabled, setIsCookiesEnabled]} />;
 };
 
 export default BlackjackWebApp;

@@ -15,6 +15,7 @@ import SexyButton from '../components/SexyButton';
 import styles from '../styles/table.module.css';
 import { ACE, DECK_SIZE, NINETEEN, SEVENTEEN, TWELVE, TWENTY_ONE } from '../utils/constants';
 import { isArrayEqual, log } from '../utils/utils';
+import { GlobalConfig } from './_app';
 
 const NUM_DECKS = 6;
 
@@ -25,16 +26,21 @@ const COOKIE_OFFER_INSURANCE = 'offerInsurance';
 const COOKIE_SOFT_SEVENTEEN = 'dealerHitSoft17';
 const COOKIE_SHOW_COUNT = 'showCount';
 
-export default function Blackjack(): JSX.Element {
+export default function Blackjack({
+  cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled],
+}: GlobalConfig): JSX.Element {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   const closeSettings = () => {
     setIsSettingsOpen(false);
 
     // Update cookies.
-    setCookie(COOKIE_OFFER_INSURANCE, offerInsurance);
-    setCookie(COOKIE_SOFT_SEVENTEEN, dealerHitSoft17);
-    setCookie(COOKIE_SHOW_COUNT, showRunningCount);
+    if (isCookiesEnabled) {
+      log('UPDATING COOKIES');
+      setCookie(COOKIE_OFFER_INSURANCE, offerInsurance);
+      setCookie(COOKIE_SOFT_SEVENTEEN, dealerHitSoft17);
+      setCookie(COOKIE_SHOW_COUNT, showRunningCount);
+    }
   };
 
   // Cookies
@@ -43,23 +49,25 @@ export default function Blackjack(): JSX.Element {
   const [showRunningCount, setShowRunningCount] = useState<boolean>(false);
 
   useEffect(() => {
-    log('Bootstrapping cookies...');
     // Bootstrap cookies
-    if (hasCookie(COOKIE_OFFER_INSURANCE)) {
-      const offerInsurance = getCookie(COOKIE_OFFER_INSURANCE) as boolean;
-      setOfferInsurance(offerInsurance);
-    }
+    if (isCookiesEnabled) {
+      log('Bootstrapping cookies...');
+      if (hasCookie(COOKIE_OFFER_INSURANCE)) {
+        const offerInsurance = getCookie(COOKIE_OFFER_INSURANCE) as boolean;
+        setOfferInsurance(offerInsurance);
+      }
 
-    if (hasCookie(COOKIE_SOFT_SEVENTEEN)) {
-      const dealerHitSoft17 = getCookie(COOKIE_SOFT_SEVENTEEN) as boolean;
-      setDealerHitSoft17(dealerHitSoft17);
-    }
+      if (hasCookie(COOKIE_SOFT_SEVENTEEN)) {
+        const dealerHitSoft17 = getCookie(COOKIE_SOFT_SEVENTEEN) as boolean;
+        setDealerHitSoft17(dealerHitSoft17);
+      }
 
-    if (hasCookie(COOKIE_SHOW_COUNT)) {
-      const showRunningCount = getCookie(COOKIE_SHOW_COUNT) as boolean;
-      setShowRunningCount(showRunningCount);
+      if (hasCookie(COOKIE_SHOW_COUNT)) {
+        const showRunningCount = getCookie(COOKIE_SHOW_COUNT) as boolean;
+        setShowRunningCount(showRunningCount);
+      }
     }
-  }, []);
+  }, [isCookiesEnabled]);
 
   const settingsConfigs: Configuration[] = [
     {
@@ -128,7 +136,7 @@ export default function Blackjack(): JSX.Element {
 
   function onPromptResponse(response: boolean) {
     //, callback: (response: boolean) => void) {
-    log(`PROMPT RESPONSE =================== ${response}`);
+    // log(`PROMPT RESPONSE =================== ${response}`);
 
     // setIsQuestioningBadDecision(false);
     /* setIsQuestioningBadDecisionToHit(false);
@@ -206,12 +214,12 @@ export default function Blackjack(): JSX.Element {
 
   const [dealerBlackjackNoInsurance, setDealerBlackjackNoInsurance] = useState<boolean>(false);
   useEffect(() => {
-    log(`dealerBlackjackNoInsurance:${dealerBlackjackNoInsurance}`);
+    // log(`dealerBlackjackNoInsurance:${dealerBlackjackNoInsurance}`);
     if (dealerBlackjackNoInsurance) {
       setTimeout(() => {
-        log('dealerBlackjackNoInsurance');
-        log('dealerBlackjackNoInsurance');
-        log('dealerBlackjackNoInsurance');
+        // log('dealerBlackjackNoInsurance');
+        // log('dealerBlackjackNoInsurance');
+        // log('dealerBlackjackNoInsurance');
         if (!cancelTimeout) {
           insure(false);
         } else {
@@ -234,7 +242,7 @@ export default function Blackjack(): JSX.Element {
         setTimeout(() => {
           if (!cancelTimeout) {
             var time = new Date(Date.now());
-            log(`timer 1 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
+            // log(`timer 1 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
 
             const card = drawCardAndUpdateDeck(true); // show dealer first card
             const newDealer = dealer.clone();
@@ -254,7 +262,7 @@ export default function Blackjack(): JSX.Element {
         setTimeout(() => {
           if (!cancelTimeout) {
             var time = new Date(Date.now());
-            log(`timer 2 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
+            // log(`timer 2 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
 
             const card = drawCardAndUpdateDeck(true);
             const newCurrentHand = currentHand.clone();
@@ -274,7 +282,7 @@ export default function Blackjack(): JSX.Element {
         setTimeout(() => {
           if (!cancelTimeout) {
             var time = new Date(Date.now());
-            log(`timer 3 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
+            // log(`timer 3 finished: ${time.getMinutes()}.${time.getSeconds()}.${time.getMilliseconds()}`);
 
             const card = drawCardAndUpdateDeck(false); // hide dealer second card
             const newDealer = dealer.clone();
@@ -283,10 +291,10 @@ export default function Blackjack(): JSX.Element {
             setDealer(newDealer);
 
             // Check if player has blackjack
-            log('checking if player has blackjack');
+            // log('checking if player has blackjack');
             if (currentHand.IsBlackjack) {
               // Auto-stand on blackjack
-              log('player has blackjack');
+              // log('player has blackjack');
               const newCurrentHand = currentHand.clone();
               newCurrentHand.stand();
               setCurrentHand(newCurrentHand);
@@ -295,8 +303,8 @@ export default function Blackjack(): JSX.Element {
             const isCurrentlyOfferingInsurance = newDealer.cards[0].IsAce && offerInsurance;
 
             // Dealer not showing ace or offer insurance setting is turned off, but has blackjack
-            log(`!isCurrentlyOfferingInsurance:${!isCurrentlyOfferingInsurance}`);
-            log(`newDealer.IsBlackjack:${newDealer.IsBlackjack}`);
+            // log(`!isCurrentlyOfferingInsurance:${!isCurrentlyOfferingInsurance}`);
+            // log(`newDealer.IsBlackjack:${newDealer.IsBlackjack}`);
             if (!isCurrentlyOfferingInsurance && newDealer.IsBlackjack) {
               setDealerBlackjackNoInsurance(true);
             }
@@ -322,9 +330,9 @@ export default function Blackjack(): JSX.Element {
       newCurrentHand.acceptInsurance();
     }
 
-    log('checking if dealer has blackjack');
+    // log('checking if dealer has blackjack');
     if (dealer.IsBlackjack) {
-      log('dealer has blackjack');
+      // log('dealer has blackjack');
       const newDealer = dealer.clone();
       newDealer.cards[1].flip();
 
@@ -353,7 +361,7 @@ export default function Blackjack(): JSX.Element {
       newBadDecision = `Hit soft ${currentHand.ValueSoft}?`;
     }
 
-    log(`makeBadDecision:${makeBadDecision}`);
+    // log(`makeBadDecision:${makeBadDecision}`);
     log(`${typeof makeBadDecision}`);
     log(`${makeBadDecision === false}`);
     if (makeBadDecision === true || newBadDecision === '') {
@@ -366,7 +374,7 @@ export default function Blackjack(): JSX.Element {
       setFlipLastCardTimeout(true);
       // setFlipLastCardTimeout(newCurrentHand);
     } else {
-      log(`BAD DECISION ===== ${newBadDecision}`);
+      // log(`BAD DECISION ===== ${newBadDecision}`);
       setIsProcessing(true);
       setBadDecision(newBadDecision);
       setBadDecisionCallback(hit.name);
@@ -378,10 +386,10 @@ export default function Blackjack(): JSX.Element {
   function stand(makeBadDecision: boolean) {
     log();
     log('stand');
-    log(`makeBadDecision:${makeBadDecision}`);
-    log(`typeof makeBadDecision:${typeof makeBadDecision}`);
-    log(`!currentHand.HasAce:${!currentHand.HasAce}`);
-    log(`currentHand.ValueHard < TWELVE:${currentHand.ValueHard < TWELVE}`);
+    // log(`makeBadDecision:${makeBadDecision}`);
+    // log(`typeof makeBadDecision:${typeof makeBadDecision}`);
+    // log(`!currentHand.HasAce:${!currentHand.HasAce}`);
+    // log(`currentHand.ValueHard < TWELVE:${currentHand.ValueHard < TWELVE}`);
 
     // confirm bad decisions
     let newBadDecision = '';
@@ -394,7 +402,7 @@ export default function Blackjack(): JSX.Element {
       newCurrentHand.stand();
       setCurrentHand(newCurrentHand);
     } else {
-      log(`BAD DECISION ===== ${newBadDecision}`);
+      // log(`BAD DECISION ===== ${newBadDecision}`);
       setIsProcessing(true);
       setBadDecision(newBadDecision);
       setBadDecisionCallback(stand.name);
@@ -532,9 +540,9 @@ export default function Blackjack(): JSX.Element {
     if (flipLastCardTimeout) {
       setTimeout(() => {
         if (!cancelTimeout) {
-          log('flipLastCardTimeout');
-          log('flipLastCardTimeout');
-          log('flipLastCardTimeout');
+          // log('flipLastCardTimeout');
+          // log('flipLastCardTimeout');
+          // log('flipLastCardTimeout');
           let newHand;
           if (isDealerPlaying) {
             newHand = dealer.clone();
@@ -570,9 +578,9 @@ export default function Blackjack(): JSX.Element {
     if (newCurrentHandTimeout) {
       setTimeout(() => {
         if (!cancelTimeout) {
-          log('newCurrentHandTimeout');
-          log('newCurrentHandTimeout');
-          log('newCurrentHandTimeout');
+          // log('newCurrentHandTimeout');
+          // log('newCurrentHandTimeout');
+          // log('newCurrentHandTimeout');
           getNewCurrentHand();
         } else {
           setCancelTimeout(false);
@@ -584,7 +592,7 @@ export default function Blackjack(): JSX.Element {
   });
 
   function getNewCurrentHand() {
-    log('New current hand exists, updating current hand to next active hand');
+    // log('New current hand exists, updating current hand to next active hand');
     const newSplitHands = [...splitHands];
 
     // Swap current hand with first split hand that didnt stand or bust
@@ -602,7 +610,7 @@ export default function Blackjack(): JSX.Element {
       setIsProcessing(true);
       setTimeout(() => {
         if (!cancelTimeout) {
-          log('Dealer plays');
+          // log('Dealer plays');
           const newDealer = dealer.clone();
           const allHands = [...splitHands, currentHand];
           const dealerWillHit =
@@ -616,10 +624,10 @@ export default function Blackjack(): JSX.Element {
             const card = drawCardAndUpdateDeck(false);
             newDealer.addCard(card);
 
-            log(`Dealer dealt card ${card.toString()}`);
-            log(
-              `\tdealer hand:\t${newDealer.toString()} ${newDealer.IsBlackjack ? 'BLACKJACK' : newDealer.ValueString}`
-            );
+            // log(`Dealer dealt card ${card.toString()}`);
+            // log(
+            //   `\tdealer hand:\t${newDealer.toString()} ${newDealer.IsBlackjack ? 'BLACKJACK' : newDealer.ValueString}`
+            // );
 
             setIsProcessing(true);
             setDealer(newDealer);
@@ -640,18 +648,18 @@ export default function Blackjack(): JSX.Element {
   });
 
   useEffect(() => {
-    log();
-    log('|=============== BEGIN componentDidUpdate BEGIN ===============|');
-    log(`splitHands.length:${splitHands.length}`);
+    // log();
+    // log('|=============== BEGIN componentDidUpdate BEGIN ===============|');
+    // log(`splitHands.length:${splitHands.length}`);
 
     if (currentHand && !isCurrentlyDealing) {
       // DEBUG: display all active hands
-      log(`\tCurrent Hand:\t${currentHand}  -  ${currentHand.IsBlackjack ? 'BLACKJACK' : currentHand.ValueString}`);
+      // log(`\tCurrent Hand:\t${currentHand}  -  ${currentHand.IsBlackjack ? 'BLACKJACK' : currentHand.ValueString}`);
       splitHands.forEach((x, i) => log(`\t Split Hand ${i}:\t${x}  -  ${x.IsBlackjack ? 'BLACKJACK' : x.ValueString}`));
 
       // Dealing completed and no active prompts.
-      log(`dealer: ${dealer}`);
-      log(`!isProcessing: ${!isProcessing}`);
+      // log(`dealer: ${dealer}`);
+      // log(`!isProcessing: ${!isProcessing}`);
       if (dealer && !isProcessing) {
         // Auto-hit on split hands
         if (currentHand.didSplit && currentHand.cards.length === 1) {
@@ -672,10 +680,10 @@ export default function Blackjack(): JSX.Element {
           // All active hands either stood or busted
           else {
             const allHands = [...splitHands, currentHand];
-            log('All active hands either stood or busted');
+            // log('All active hands either stood or busted');
             // Flip second dealer card before playing
             if (!dealer.cards[1].isFaceUp) {
-              log('flipping dealer first card');
+              // log('flipping dealer first card');
               const newDealer = dealer.clone();
               newDealer.cards[1].flip(); // show dealer second card
 
@@ -746,12 +754,12 @@ export default function Blackjack(): JSX.Element {
       }
     }
 
-    log('|=============== END componentDidUpdate END ===============|');
-    log();
+    // log('|=============== END componentDidUpdate END ===============|');
+    // log();
   });
 
   return (
-    <Layout openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
+    <Layout title="Blackjack" openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
       <Prompt promptText={'INSURANCE?'} respond={insure} isPromptActive={isCurrentlyOfferingInsurance} />
       <Prompt promptText={badDecision} respond={onPromptResponse} isPromptActive={badDecision !== ''} />
       {isSettingsOpen && <Settings configs={settingsConfigs} onClose={closeSettings} />}

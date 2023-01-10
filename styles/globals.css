@@ -6,12 +6,13 @@
 }
 
 html {
-  background-image: url('/images/blackjack/table-3.jpg');
+  /* background-image: url('/images/blackjack/table-3.jpg'); */
 }
 
 html,
 body {
   margin: 0;
+  background-color: #696969;
   /* background-color: rgb(255, 246, 235); */
   color: #000;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

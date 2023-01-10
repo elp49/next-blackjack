@@ -97,8 +97,8 @@
      content: "width is greater than height"
   } */
   .board {
-    height: 85vh;
-    width: 85vh;
+    height: 80vh;
+    width: 80vh;
   }
 }
 
@@ -107,7 +107,7 @@
      content: "height is greater than width"
   } */
   .board {
-    height: 85vw;
-    width: 85vw;
+    height: 80vw;
+    width: 80vw;
   }
 }

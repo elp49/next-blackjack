@@ -19,6 +19,7 @@ export default function Settings({ configs, onClose }: SettingsProps): JSX.Eleme
       style={{
         height: '75vh',
         width: '80vw',
+        maxWidth: '400px',
         // width: '80%',
         // margin: '3em auto 3em auto',
         padding: '3em',

@@ -4,6 +4,7 @@ import BoardComponent from '../chess/components/BoardComponent';
 import Layout from '../components/Layout/Layout';
 import Settings, { Configuration } from '../components/Layout/Settings';
 import { log, range } from '../utils/utils';
+import { GlobalConfig } from './_app';
 
 export const BOARD_LENGTH = 8;
 
@@ -13,9 +14,7 @@ export const Y_AXIS_VALUES: number[] = range(1, BOARD_LENGTH);
 const COOKIE_COLOR = 'color';
 const COOKIE_DEBUG = 'debug';
 
-type ChessProps = {};
-
-function Chess({}: ChessProps): JSX.Element {
+function Chess({ cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled] }: GlobalConfig): JSX.Element {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   const [isPlayerWhite, setIsPlayerWhite] = useState<boolean>(true);
@@ -25,22 +24,26 @@ function Chess({}: ChessProps): JSX.Element {
     setIsSettingsOpen(false);
 
     // Update cookies.
-    setCookie(COOKIE_COLOR, isPlayerWhite);
-    setCookie(COOKIE_DEBUG, isDebugMode);
+    if (isCookiesEnabled) {
+      setCookie(COOKIE_COLOR, isPlayerWhite);
+      setCookie(COOKIE_DEBUG, isDebugMode);
+    }
   };
 
   useEffect(() => {
-    log('Bootstrapping cookies...');
     // Bootstrap cookies
-    if (hasCookie(COOKIE_COLOR)) {
-      const isPlayerWhite = getCookie(COOKIE_COLOR) as boolean;
-      setIsPlayerWhite(isPlayerWhite);
+    if (isCookiesEnabled) {
+      log('Bootstrapping cookies...');
+      if (hasCookie(COOKIE_COLOR)) {
+        const isPlayerWhite = getCookie(COOKIE_COLOR) as boolean;
+        setIsPlayerWhite(isPlayerWhite);
+      }
+      if (hasCookie(COOKIE_DEBUG)) {
+        const isDebugMode = getCookie(COOKIE_DEBUG) as boolean;
+        setIsDebugMode(isDebugMode);
+      }
     }
-    if (hasCookie(COOKIE_DEBUG)) {
-      const isDebugMode = getCookie(COOKIE_DEBUG) as boolean;
-      setIsDebugMode(isDebugMode);
-    }
-  }, []);
+  }, [isCookiesEnabled]);
 
   const settingsConfigs: Configuration[] = [
     {
@@ -69,9 +72,9 @@ function Chess({}: ChessProps): JSX.Element {
   }, [isPlayerWhite]);
 
   return (
-    <Layout openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
+    <Layout title="Chess" openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
       {isSettingsOpen && <Settings configs={settingsConfigs} onClose={closeSettings} />}
-      <div className={`column container outline`}>
+      <div className={`column outline`} style={{ justifyContent: 'center', minHeight: '85vh' }}>
         <BoardComponent isPlayerWhite={isPlayerWhite} xAxis={xAxis} yAxis={yAxis} isDebugMode={isDebugMode} />
       </div>
     </Layout>
