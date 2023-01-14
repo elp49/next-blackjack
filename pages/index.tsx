@@ -44,6 +44,9 @@ function Home({ cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled] }: Global
             <Link href="/chess" className={`${styles.sexyButton} ${styles.large}`}>
               Chess
             </Link>
+            <Link href="/snake" className={`${styles.sexyButton} ${styles.large}`}>
+              Snake
+            </Link>
           </div>
           <div className="third column"></div>
         </div>

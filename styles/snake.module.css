@@ -1,0 +1,49 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.5em;
+  border: 0.5em solid black;
+  background-color: black;
+}
+
+.innerBoard {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.cell {
+  position: absolute;
+}
+
+.head {
+  position: absolute;
+
+  background-color: rgb(255, 178, 34);
+
+  transition-duration: 5s;
+  transition-timing-function: linear;
+
+  border-radius: 50%;
+  border: 2px solid rgb(255, 140, 0);
+}
+
+@media all and (orientation: landscape) {
+  /* body:after {
+     content: "width is greater than height"
+  } */
+  .board {
+    height: 80vh;
+    width: 80vh;
+  }
+}
+
+@media all and (orientation: portrait) {
+  /* body:after {
+     content: "height is greater than width"
+  } */
+  .board {
+    height: 80vw;
+    width: 80vw;
+  }
+}
