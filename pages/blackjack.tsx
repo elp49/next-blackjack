@@ -759,7 +759,12 @@ export default function Blackjack({
   });
 
   return (
-    <Layout title="Blackjack" openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
+    <Layout
+      title="Blackjack"
+      favicon="/favicon.blackjack.ico"
+      openSettings={() => setIsSettingsOpen(true)}
+      disabled={isSettingsOpen}
+    >
       <Prompt promptText={'INSURANCE?'} respond={insure} isPromptActive={isCurrentlyOfferingInsurance} />
       <Prompt promptText={badDecision} respond={onPromptResponse} isPromptActive={badDecision !== ''} />
       {isSettingsOpen && <Settings configs={settingsConfigs} onClose={closeSettings} />}

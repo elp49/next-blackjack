@@ -24,7 +24,12 @@ function Home({ cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled] }: Global
   ];
 
   return (
-    <Layout title="Games" openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
+    <Layout
+      title="Games"
+      favicon="/favicon.gameboy.ico"
+      openSettings={() => setIsSettingsOpen(true)}
+      disabled={isSettingsOpen}
+    >
       {isSettingsOpen && <Settings configs={settingsConfigs} onClose={closeSettings} />}
       <div className={styles.container}>
         <div className="whole column">
@@ -32,7 +37,7 @@ function Home({ cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled] }: Global
             {/* <h1>Blackjack</h1>
             <h3>best of luck ;)</h3> */}
           </div>
-          <div className="third column">
+          <div className="column" style={{ width: '100%' }}>
             <Link href="/blackjack" className={`${styles.sexyButton} ${styles.large}`}>
               Blackjack
             </Link>

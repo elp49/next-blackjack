@@ -72,7 +72,12 @@ function Chess({ cookiesConfig: [isCookiesEnabled, setIsCookiesEnabled] }: Globa
   }, [isPlayerWhite]);
 
   return (
-    <Layout title="Chess" openSettings={() => setIsSettingsOpen(true)} disabled={isSettingsOpen}>
+    <Layout
+      title="Chess"
+      favicon="/favicon.chess.ico"
+      openSettings={() => setIsSettingsOpen(true)}
+      disabled={isSettingsOpen}
+    >
       {isSettingsOpen && <Settings configs={settingsConfigs} onClose={closeSettings} />}
       <div className={`column outline`} style={{ justifyContent: 'center', minHeight: '85vh' }}>
         <BoardComponent isPlayerWhite={isPlayerWhite} xAxis={xAxis} yAxis={yAxis} isDebugMode={isDebugMode} />
